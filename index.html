@@ -15,7 +15,6 @@
     --good:#06d6a0;
     --warn:#ffd60a;
     --bad:#e63946;
-    --input:#1e3d70; /* bleu pour les champs */
   }
   *{box-sizing:border-box}
   body{
@@ -24,25 +23,21 @@
     color:var(--text);
     -webkit-font-smoothing:antialiased;
   }
-  header{
-    background:rgba(13,27,42,.85); border-bottom:1px solid rgba(255,255,255,.03); position:sticky; top:0; z-index:10;
-  }
+  header{ background:rgba(13,27,42,.85); border-bottom:1px solid rgba(255,255,255,.03); position:sticky; top:0; z-index:10; }
   .wrap{ max-width:1200px; margin:0 auto; padding:16px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
   h1{ margin:0; font-size:18px; display:flex; align-items:center; gap:10px }
   .badge{ background:var(--accent); color:#002733; padding:6px 10px; border-radius:999px; font-weight:700; font-size:12px }
 
-  /* layout */
   .container{ max-width:1200px; margin:20px auto; padding:0 16px; display:grid; grid-template-columns:1fr 1fr; gap:18px; }
   @media (max-width:980px){ .container{ grid-template-columns:1fr } }
 
   .card{ background:linear-gradient(180deg,var(--panel),var(--card)); border-radius:14px; padding:14px; border:1px solid rgba(255,255,255,.03); box-shadow:0 12px 30px rgba(0,0,0,.45); }
   .card h2{ margin:0 0 10px; color:var(--sub); font-size:15px }
 
-  /* form controls (blue inputs) */
   label{ display:block; color:#cfe8f6; font-weight:600; margin:8px 0 6px; font-size:13px }
   input[type="text"], input[type="number"], select, textarea {
     width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.06);
-    background: linear-gradient(180deg,var(--input),#17325c); color:var(--text); outline:none;
+    background: linear-gradient(180deg,#0f2a3b,#0b2130); color:var(--text); outline:none;
   }
   input[type="number"]::-webkit-inner-spin-button{ opacity: .6 }
   textarea{ min-height:80px; resize:vertical; background:linear-gradient(180deg,#0f2d40,#0b2434) }
@@ -51,17 +46,13 @@
   .row-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px }
   @media (max-width:700px){ .row, .row-3{ grid-template-columns:1fr } }
 
-  .btn{
-    background:var(--accent); color:#002733; padding:10px 12px; border-radius:10px; border:none; cursor:pointer; font-weight:700;
-    display:inline-flex; gap:8px; align-items:center; transition:transform .12s ease, box-shadow .12s;
-  }
+  .btn{ background:var(--accent); color:#002733; padding:10px 12px; border-radius:10px; border:none; cursor:pointer; font-weight:700; display:inline-flex; gap:8px; align-items:center; transition:transform .12s ease, box-shadow .12s; }
   .btn:hover{ transform:translateY(-3px); box-shadow:0 10px 30px rgba(0,180,216,.12) }
   .btn-ghost{ background:transparent; color:var(--text); border:1px solid rgba(255,255,255,.06) }
   .btn-edit{ background:var(--warn); color:#000 }
   .btn-del{ background:var(--bad); color:#fff }
   .btn-pdf{ background:var(--accent); color:#002733 }
 
-  /* list */
   .toolbar{ display:flex; gap:10px; margin-bottom:10px; align-items:center }
   .toolbar input[type="search"]{ flex:1 }
   .list{ list-style:none; margin:0; padding:0; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,.03) }
@@ -70,9 +61,8 @@
   .left{ display:flex; align-items:center; gap:10px }
   .emoji{ font-size:20px; }
   .name{ font-weight:700; letter-spacing:.2px }
-  .pill{ font-size:12px; padding:4px 8px; border-radius:999px; background:rgba(255,255,255,.04) color:var(--text) }
+  .pill{ font-size:12px; padding:4px 8px; border-radius:999px; background:rgba(255,255,255,.04); color:var(--text) }
 
-  /* modal */
   .modal{ display:none; position:fixed; inset:0; z-index:999; background:rgba(1,8,16,.6); backdrop-filter: blur(6px); align-items:center; justify-content:center; padding:20px; }
   .modal.show{ display:flex; animation:modalFade .28s ease; }
   @keyframes modalFade{ from{opacity:0} to{opacity:1} }
@@ -83,7 +73,6 @@
   .modal-header{ display:flex; justify-content:space-between; align-items:center; gap:10px }
   .close{ cursor:pointer; font-size:22px; color:#334455; background:transparent; border:none }
 
-  /* report content */
   .report-grid{ display:grid; grid-template-columns:1fr 360px; gap:14px }
   @media (max-width:880px){ .report-grid{ grid-template-columns:1fr } }
   table{ width:100%; border-collapse:collapse; margin-top:6px }
@@ -95,7 +84,6 @@
   .progress-wrap{ margin-top:8px; background:#f0f4f7; border-radius:10px; overflow:hidden; border:1px solid #e6eef5 }
   .progress{ height:26px; width:0; background:linear-gradient(90deg,#06d6a0,#25d0ff); display:flex; align-items:center; justify-content:center; color:#002733; font-weight:700; transition:width .6s }
 
-  /* inputs inside modal (edit) - blue */
   .modal input[type="number"], .modal input[type="text"], .modal textarea, .modal select {
     background: linear-gradient(180deg,#072939,#0a2f43); color: #e6f7ff; border-radius:8px; border:1px solid rgba(255,255,255,.06);
     padding:8px 10px;
@@ -103,10 +91,7 @@
   .modal label{ color:#d6f0fb; }
 
   .actions{ display:flex; gap:10px; margin-top:12px; justify-content:flex-end; flex-wrap:wrap }
-
   small.hint{ color:#9fbbd0 }
-
-  .loading{ opacity:.6; pointer-events:none }
 </style></head>
 <body><header>
   <div class="wrap">
@@ -114,7 +99,6 @@
     <div style="font-size:13px; color:var(--sub)">Interface moderne • Imprimer rapports</div>
   </div>
 </header><main class="container">
-  <!-- Form card -->
   <section class="card">
     <h2>Ajouter / Nouveau</h2>
     <div class="row">
@@ -169,30 +153,29 @@
 </div>
 
 <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap">
-  <button class="btn" id="addBtn" onclick="addStudent()"><i class="fa-solid fa-user-plus"></i> Ajouter</button>
-  <button class="btn btn-ghost" onclick="clearForm()">Effacer</button>
+  <button class="btn" id="btnAdd"><i class="fa-solid fa-user-plus"></i> Ajouter</button>
+  <button class="btn btn-ghost" id="btnClear">Effacer</button>
   <small class="hint">Les données sont synchronisées avec Google Sheets</small>
 </div>
 
-  </section>  <!-- List + filters -->  <section class="card">
+  </section>  <section class="card">
     <h2>Liste des élèves</h2><div class="toolbar" style="margin-bottom:12px">
-  <input id="search" type="search" placeholder="Rechercher nom/prénom..." oninput="renderList()">
-  <select id="filterClasse" onchange="renderList()"><option value="__all__">Toutes les classes</option></select>
-  <select id="sortBy" onchange="renderList()">
+  <input id="search" type="search" placeholder="Rechercher nom/prénom...">
+  <select id="filterClasse"><option value="__all__">Toutes les classes</option></select>
+  <select id="sortBy">
     <option value="name-asc">Nom A→Z</option>
     <option value="name-desc">Nom Z→A</option>
     <option value="classe-asc">Classe A→Z</option>
     <option value="classe-desc">Classe Z→A</option>
   </select>
-  <button class="btn btn-ghost" onclick="resetFilters()">Réinitialiser</button>
-  <button class="btn btn-ghost" id="refreshBtn" title="Actualiser" onclick="loadStudents()"><i class="fa-solid fa-rotate"></i></button>
+  <button class="btn btn-ghost" id="btnReset">Réinitialiser</button>
+  <button class="btn btn-ghost" id="btnRefresh" title="Actualiser"><i class="fa-solid fa-rotate"></i></button>
 </div>
 
 <ul id="list" class="list"></ul>
-<div id="emptyState" style="display:none; color:var(--sub); font-size:13px">Aucun élève. Ajoutez-en un pour commencer.</div>
 
   </section>
-</main><!-- Modal --><div id="modal" class="modal" aria-hidden="true">
+</main><div id="modal" class="modal" aria-hidden="true">
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-header">
       <div>
@@ -200,12 +183,11 @@
         <div style="font-size:13px; color:#445b6b" id="modalSub">—</div>
       </div>
       <div>
-        <button class="btn btn-ghost" id="toggleEditBtn" onclick="toggleEditMode(false)">Mode édition</button>
-        <button class="close" onclick="closeModal()" title="Fermer">&times;</button>
+        <button class="btn btn-ghost" id="toggleEditBtn">Mode édition</button>
+        <button class="close" id="btnCloseModal" title="Fermer">&times;</button>
       </div>
     </div><div style="margin-top:12px">
   <div class="report-grid">
-    <!-- left: table + narrative -->
     <div id="reportLeft">
       <h3>Tableau des compétences</h3>
       <table id="skillsTable" aria-live="polite">
@@ -213,12 +195,9 @@
         <tbody></tbody>
       </table>
 
-      <div class="narrative" id="pedagoText">
-        Texte pédagogique ...
-      </div>
+      <div class="narrative" id="pedagoText">Texte pédagogique ...</div>
     </div>
 
-    <!-- right: chart + progress + notes -->
     <div id="reportRight">
       <h3>Graphique</h3>
       <canvas id="studentChart" style="max-height:220px"></canvas>
@@ -238,115 +217,113 @@
     </div>
   </div>
 
-  <!-- actions -->
   <div class="actions">
-    <button class="btn btn-pdf" onclick="printReport()"><i class="fa-solid fa-print"></i> Imprimer le rapport</button>
-    <button id="saveEditBtn" class="btn btn-edit" onclick="saveEdit()" style="display:none"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>
-    <button class="btn btn-ghost" onclick="closeModal()">Fermer</button>
+    <button class="btn btn-pdf" id="btnPrint"><i class="fa-solid fa-print"></i> Imprimer le rapport</button>
+    <button id="saveEditBtn" class="btn btn-edit" style="display:none"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>
+    <button class="btn btn-ghost" id="btnCloseModal2">Fermer</button>
   </div>
 </div>
 
   </div>
-</div><!-- Icons library (only for display icons in buttons) --><script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script><script>
-/* ---------------- Config, State & utils ---------------- */
-const API_BASE = 'https://script.google.com/macros/s/AKfycbywcuLXxYhGFEWhd0TiOD8s1FwGebxfGwf9DmfXZTFXPZeuDRs8mc8DjKXNJf4jxH73Uw/exec';
-const MAX_SCORE = 20; // 0–20 demandé
+</div><script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script><script>
+/* ================== Config & helpers ================== */
+const API_BASE = 'https://script.google.com/macros/s/AKfycbywcuLXxYhGFEWhd0TiOD8s1FwGebxfGwf9DmfXZTFXPZeuDRs8mc8DjKXNJf4jxH73Uw/exec'; // ضع رابط Web App هنا إن تغيّر
+const MAX_SCORE = 20;
 
-let students = []; // { index, nom, prenom, sexe, classe, notes, ecriture, lecture, vocabulaire, grammaire, conjugaison, orthographe, date }
-let activeIdx = null; // contient la valeur de s.index
+let students = [];           // سيجلب من Google Sheets
+let activeIdx = null;        // موضع العنصر داخل المصفوفة (وليس index الخادم)
 let chartInstance = null;
 const skillsLabels = ["Écriture","Lecture","Vocabulaire","Grammaire","Conjugaison","Orthographe"];
 
 function qs(id){ return document.getElementById(id); }
-function setLoading(el, on){ if(!el) return; el.classList.toggle('loading', !!on); el.disabled = !!on; }
+function setLoading(el,on){ if(!el) return; el.classList.toggle('loading',!!on); el.disabled=!!on; }
 
-/* ---------------- API wrapper ---------------- */
+/* ================== API wrapper (يدعم GET أو POST action) ================== */
 async function api(method, payload){
-  const opt = { method, headers: { 'Content-Type': 'application/json' } };
+  const opt = { method, headers:{'Content-Type':'application/json'} };
   if(method !== 'GET' && payload) opt.body = JSON.stringify(payload);
   const res = await fetch(API_BASE, opt);
   if(!res.ok) throw new Error('HTTP '+res.status);
   return res.json();
 }
 const backend = {
-  async getAll(){ return api('GET'); },
-  async create(s){ return api('POST', s); },
-  async update(index, s){ return api('PUT', { index, ...s }); },
-  async remove(index){ return api('DELETE', { index }); }
+  async getAll(){
+    try { return await api('GET'); } catch{ return await api('POST', { action:'get' }); }
+  },
+  async create(s){ return api('POST', { action:'create', ...s }); },
+  async update(index, s){ return api('POST', { action:'update', index, ...s }); },
+  async remove(index){ return api('POST', { action:'delete', index }); }
 };
 
-/* ------------- Add / Clear form ------------- */
+/* ================== UI logic ================== */
+function clamp(v){ v=Number(v)||0; if(v<0) v=0; if(v>MAX_SCORE) v=MAX_SCORE; return v; }
+
 function readFormValues(){
-  const toNum = v => Math.max(0, Math.min(MAX_SCORE, Number(v)||0));
   return {
     nom: qs('nom').value.trim(),
     prenom: qs('prenom').value.trim(),
     sexe: qs('sexe').value,
     classe: qs('classe').value.trim(),
     notes: qs('notes').value.trim(),
-    ecriture: toNum(qs('ecriture').value),
-    lecture: toNum(qs('lecture').value),
-    vocabulaire: toNum(qs('vocabulaire').value),
-    grammaire: toNum(qs('grammaire').value),
-    conjugaison: toNum(qs('conjugaison').value),
-    orthographe: toNum(qs('orthographe').value),
+    ecriture: clamp(qs('ecriture').value),
+    lecture: clamp(qs('lecture').value),
+    vocabulaire: clamp(qs('vocabulaire').value),
+    grammaire: clamp(qs('grammaire').value),
+    conjugaison: clamp(qs('conjugaison').value),
+    orthographe: clamp(qs('orthographe').value),
     date: new Date().toLocaleDateString()
   };
 }
+
 async function addStudent(){
-  const btn = qs('addBtn'); setLoading(btn, true);
+  const btn = qs('btnAdd'); setLoading(btn,true);
   try{
     const s = readFormValues();
     if(!s.nom || !s.prenom){ alert('Nom et prénom requis'); return; }
-    const created = await backend.create(s); // suppose qu'il renvoie l'objet avec index
+    const r = await backend.create(s);
     await loadStudents();
     clearForm();
-  } catch(err){ console.error(err); alert('Erreur lors de l\'ajout. Vérifiez la connexion et les autorisations.'); }
-  finally{ setLoading(btn, false); }
+  } catch(e){ console.error(e); alert('Erreur lors de l\'ajout. Vérifiez le déploiement/permissions.'); }
+  finally{ setLoading(btn,false); }
 }
+
 function clearForm(){
   ['nom','prenom','classe','notes','ecriture','lecture','vocabulaire','grammaire','conjugaison','orthographe'].forEach(id=>qs(id).value='');
   qs('sexe').value='H';
 }
 
-/* ------------- List / Filters / Sort ------------- */
 function uniqueClasses(){
   const set = new Set(students.map(s=>s.classe).filter(Boolean));
   return ['__all__', ...[...set].sort()];
 }
 function populateFilter(){
   const sel = qs('filterClasse');
+  const prev = sel.value;
   sel.innerHTML = uniqueClasses().map(c=>`<option value="${c}">${c==='__all__'?'Toutes les classes':c}</option>`).join('');
-  if(!sel.value) sel.value='__all__';
+  sel.value = [...sel.options].some(o=>o.value===prev) ? prev : '__all__';
 }
-function resetFilters(){
-  qs('search').value=''; qs('filterClasse').value='__all__'; qs('sortBy').value='name-asc'; renderList();
-}
+function resetFilters(){ qs('search').value=''; qs('filterClasse').value='__all__'; qs('sortBy').value='name-asc'; renderList(); }
+
 function renderList(){
   populateFilter();
   const q = (qs('search').value||'').toLowerCase().trim();
   const classe = qs('filterClasse').value;
   const sortBy = qs('sortBy').value;
   let list = [...students];
-
-  // filter by search & class
   list = list.filter(s=>{
     const name = (s.nom+' '+s.prenom).toLowerCase();
     const okQ = !q || name.includes(q);
     const okC = classe==='__all__' || !classe || s.classe===classe;
     return okQ && okC;
   });
-
-  // sort
   if(sortBy==='name-asc') list.sort((a,b)=> (a.nom+' '+a.prenom).localeCompare(b.nom+' '+b.prenom));
   if(sortBy==='name-desc') list.sort((a,b)=> (b.nom+' '+b.prenom).localeCompare(a.nom+' '+a.prenom));
   if(sortBy==='classe-asc') list.sort((a,b)=> (a.classe||'').localeCompare(b.classe||''));
   if(sortBy==='classe-desc') list.sort((a,b)=> (b.classe||'').localeCompare(a.classe||''));
 
-  // render
   const ul = qs('list'); ul.innerHTML='';
-  qs('emptyState').style.display = list.length ? 'none' : 'block';
-  list.forEach((s)=>{
+  list.forEach(s=>{
+    const idx = students.indexOf(s); // موضعه في المصفوفة
     const li = document.createElement('li');
     li.innerHTML = `
       <div class="left">
@@ -357,207 +334,92 @@ function renderList(){
         </div>
       </div>
       <div style="display:flex; gap:8px">
-        <button class="btn btn-ghost" title="Voir le rapport" onclick="openModal(${s.index}, false)"><i class="fa-solid fa-file-lines"></i> Rapport</button>
-        <button class="btn btn-edit" title="Modifier" onclick="openModal(${s.index}, true)"><i class="fa-solid fa-pen-to-square"></i> Modifier</button>
-        <button class="btn btn-del" title="Supprimer" onclick="deleteStudent(${s.index})"><i class="fa-solid fa-trash"></i></button>
-      </div>
-    `;
+        <button class="btn btn-ghost" title="Voir le rapport" onclick="openModal(${idx}, false)"><i class="fa-solid fa-file-lines"></i> Rapport</button>
+        <button class="btn btn-edit" title="Modifier" onclick="openModal(${idx}, true)"><i class="fa-solid fa-pen-to-square"></i> Modifier</button>
+        <button class="btn btn-del" title="Supprimer" onclick="deleteStudent(${idx})"><i class="fa-solid fa-trash"></i></button>
+      </div>`;
     ul.appendChild(li);
   });
 }
 
-/* ------------- Delete ------------- */
-async function deleteStudent(index){
+async function deleteStudent(arrIndex){
+  const s = students[arrIndex];
+  if(!s) return;
   if(!confirm('Supprimer cet élève ?')) return;
-  try{ await backend.remove(index); await loadStudents(); closeModal(); }
-  catch(err){ console.error(err); alert('Suppression impossible.'); }
+  try{ await backend.remove(s.index); await loadStudents(); closeModal(); }
+  catch(e){ console.error(e); alert('Suppression impossible.'); }
 }
 
-/* ------------- Modal / Report ------------- */
 const modal = qs('modal');
-function getByIndex(index){ return students.find(s=>s.index===index); }
-function openModal(index, editMode){
-  activeIdx = index;
-  const s = getByIndex(index);
+function openModal(arrIndex, editMode){
+  activeIdx = arrIndex;
+  const s = students[arrIndex];
   if(!s) return;
-  // fill header
   qs('modalTitle').textContent = `${s.nom} ${s.prenom}`;
   qs('modalSub').textContent = s.classe ? `Classe: ${s.classe}` : '—';
   qs('modalDate').textContent = s.date || '—';
-  // fill table
-  const tbody = document.querySelector('#skillsTable tbody'); tbody.innerHTML = '';
+  const tbody = document.querySelector('#skillsTable tbody'); tbody.innerHTML='';
   const arr = [s.ecriture,s.lecture,s.vocabulaire,s.grammaire,s.conjugaison,s.orthographe];
   skillsLabels.forEach((lab,i)=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${lab}</td><td>${arr[i] ?? 0}</td>`;
-    tbody.appendChild(tr);
+    const tr = document.createElement('tr'); tr.innerHTML = `<td>${lab}</td><td>${arr[i] ?? 0}</td>`; tbody.appendChild(tr);
   });
-  // narrative
   qs('pedagoText').innerHTML = generatePedagoText(s);
-  // notes area
   qs('modalNotes').value = s.notes || '';
-  // chart
   renderStudentChart(arr);
-  // progress
   const pct = Math.round((arr.reduce((a,b)=>a+(Number(b)||0),0) / (arr.length*MAX_SCORE)) * 100);
   const prog = qs('modalProgress'); prog.style.width = pct+'%'; prog.textContent = pct+'%';
-  // edit mode toggling
   toggleEditMode(editMode);
-  // show
   modal.classList.add('show'); modal.setAttribute('aria-hidden','false');
 }
+function closeModal(){ modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); activeIdx=null; if(chartInstance){ chartInstance.destroy(); chartInstance=null; }}
+qs('btnCloseModal').addEventListener('click', closeModal); qs('btnCloseModal2').addEventListener('click', closeModal);
 
-function closeModal(){
-  modal.classList.remove('show'); modal.setAttribute('aria-hidden','true');
-  activeIdx = null;
-  if(chartInstance){ chartInstance.destroy(); chartInstance = null; }
-}
-
-/* ------------- Chart ------------- */
 function renderStudentChart(data){
-  const ctx = qs('studentChart');
-  if(chartInstance) chartInstance.destroy();
-  chartInstance = new Chart(ctx, {
-    type:'bar',
-    data:{
-      labels: skillsLabels,
-      datasets:[{ label:'Score /'+MAX_SCORE, data: data.map(v=>Number(v)||0), backgroundColor:'rgba(0,180,216,0.75)', borderColor:'#00B4D8', borderWidth:1, borderRadius:8 }]
-    },
-    options:{
-      animation:{ duration:700, easing:'easeOutQuart' },
-      scales:{
-        y:{ beginAtZero:true, max:MAX_SCORE, ticks:{ stepSize: 2 } }
-      },
-      plugins:{ legend:{ display:false } }
-    }
-  });
+  const ctx = qs('studentChart'); if(chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(ctx, { type:'bar', data:{ labels:skillsLabels, datasets:[{ label:'Score /20', data:data.map(v=>Number(v)||0), backgroundColor:'rgba(0,180,216,0.75)', borderColor:'#00B4D8', borderWidth:1, borderRadius:8 }] }, options:{ animation:{ duration:700, easing:'easeOutQuart' }, scales:{ y:{ beginAtZero:true, max:MAX_SCORE, ticks:{ stepSize:2 } } }, plugins:{ legend:{ display:false } } }});
 }
 
-/* ------------- Pedagogical paragraph generator ------------- */
 function generatePedagoText(s){
   const scores = [s.ecriture,s.lecture,s.vocabulaire,s.grammaire,s.conjugaison,s.orthographe].map(v=>Number(v)||0);
   const mean = Math.round((scores.reduce((a,b)=>a+b,0)/scores.length)*100)/100;
-  const best = Math.max(...scores); const worst = Math.min(...scores);
-  const bestIdx = scores.indexOf(best); const worstIdx = scores.indexOf(worst);
-  let level;
-  if(mean >= 15) level = 'maîtrise solide';
-  else if(mean >= 10) level = 'compétences en progression';
-  else level = 'besoin d’un accompagnement ciblé';
-
-  let text = `<strong>Analyse pédagogique :</strong> L'élève présente une <em>${level}</em> (moyenne ${mean}/${MAX_SCORE}). `;
-  text += `Les compétences les plus abouties sont <strong>${skillsLabels[bestIdx]}</strong> (${best}/${MAX_SCORE}), tandis que <strong>${skillsLabels[worstIdx]}</strong> (${worst}/${MAX_SCORE}) nécessite(nt) une attention particulière. `;
-  text += `Pistes pédagogiques : renforcement par activités différenciées, exercices de remédiation ciblée et évaluation formative régulière.`;
-  return text;
+  const best = Math.max(...scores), worst = Math.min(...scores);
+  const bestIdx = scores.indexOf(best), worstIdx = scores.indexOf(worst);
+  let level; if(mean>=15) level='maîtrise solide'; else if(mean>=10) level='compétences en progression'; else level="besoin d’un accompagnement ciblé";
+  return `<strong>Analyse pédagogique :</strong> L'élève présente une <em>${level}</em> (moyenne ${mean}/20). Les compétences les plus abouties sont <strong>${skillsLabels[bestIdx]}</strong> (${best}/20), tandis que <strong>${skillsLabels[worstIdx]}</strong> (${worst}/20) nécessite(nt) une attention particulière. Pistes pédagogiques : renforcement par activités différenciées, exercices de remédiation ciblée et évaluation formative régulière.`;
 }
 
-/* ------------- Edit mode inside modal ------------- */
 function toggleEditMode(enable){
-  const notes = qs('modalNotes');
-  const saveBtn = qs('saveEditBtn');
-  const toggleBtn = qs('toggleEditBtn');
-
+  const notes = qs('modalNotes'); const saveBtn = qs('saveEditBtn'); const toggleBtn = qs('toggleEditBtn');
   if(enable){
-    // make fields editable: replace table cells with inputs
-    const tbody = document.querySelector('#skillsTable tbody');
-    const s = getByIndex(activeIdx);
-    tbody.innerHTML = '';
-    const arrKeys = ['ecriture','lecture','vocabulaire','grammaire','conjugaison','orthographe'];
-    arrKeys.forEach((k,i)=>{
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${skillsLabels[i]}</td><td><input type=\"number\" min=\"0\" max=\"${MAX_SCORE}\" id=\"edit_${k}\" value=\"${s[k] ?? 0}\" style=\"width:100%; background:linear-gradient(180deg,#072939,#0a2f43); color:#dff6ff; border-radius:6px; border:1px solid rgba(255,255,255,.06); padding:6px\"></td>`;
-      tbody.appendChild(tr);
-    });
-    // notes editable already textarea
-    notes.style.display='block';
-    saveBtn.style.display='inline-flex';
-    toggleBtn.textContent='Annuler édition';
-    toggleBtn.onclick = ()=>toggleEditMode(false);
+    const tbody = document.querySelector('#skillsTable tbody'); const s = students[activeIdx]; tbody.innerHTML='';
+    const keys = ['ecriture','lecture','vocabulaire','grammaire','conjugaison','orthographe'];
+    keys.forEach((k,i)=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${skillsLabels[i]}</td><td><input type="number" min="0" max="${MAX_SCORE}" id="edit_${k}" value="${s[k]??0}" style="width:100%; background:linear-gradient(180deg,#072939,#0a2f43); color:#dff6ff; border-radius:6px; border:1px solid rgba(255,255,255,.06); padding:6px"></td>`; tbody.appendChild(tr); });
+    notes.style.display='block'; saveBtn.style.display='inline-flex'; toggleBtn.textContent='Annuler édition'; toggleBtn.onclick=()=>toggleEditMode(false);
   } else {
-    // view mode: restore table display
-    const s = getByIndex(activeIdx);
-    const tbody = document.querySelector('#skillsTable tbody'); tbody.innerHTML='';
-    const arr = [s.ecriture,s.lecture,s.vocabulaire,s.grammaire,s.conjugaison,s.orthographe];
-    arr.forEach((val,i)=>{
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${skillsLabels[i]}</td><td>${val ?? 0}</td>`;
-      tbody.appendChild(tr);
-    });
-    // update narrative & chart
-    qs('pedagoText').innerHTML = generatePedagoText(s);
-    renderStudentChart([s.ecriture,s.lecture,s.vocabulaire,s.grammaire,s.conjugaison,s.orthographe]);
-    qs('modalNotes').value = s.notes || '';
-    qs('saveEditBtn').style.display = 'none';
-    toggleBtn.textContent='Mode édition';
-    toggleBtn.onclick = ()=>toggleEditMode(true);
+    const s = students[activeIdx]; if(!s) return; const tbody=document.querySelector('#skillsTable tbody'); tbody.innerHTML='';
+    const arr=[s.ecriture,s.lecture,s.vocabulaire,s.grammaire,s.conjugaison,s.orthographe]; arr.forEach((val,i)=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${skillsLabels[i]}</td><td>${val??0}</td>`; tbody.appendChild(tr); });
+    qs('pedagoText').innerHTML=generatePedagoText(s); renderStudentChart(arr); qs('modalNotes').value=s.notes||''; saveBtn.style.display='none'; toggleBtn.textContent='Mode édition'; toggleBtn.onclick=()=>toggleEditMode(true);
   }
 }
 
-/* ------------- Save edit ------------- */
 async function saveEdit(){
-  if(activeIdx === null) return;
-  const s = getByIndex(activeIdx);
-  // read inputs
-  ['ecriture','lecture','vocabulaire','grammaire','conjugaison','orthographe'].forEach(k=>{
-    const el = qs('edit_'+k);
-    if(el) s[k] = Math.max(0, Math.min(MAX_SCORE, Number(el.value) || 0));
-  });
-  s.notes = qs('modalNotes').value || '';
-  s.date = new Date().toLocaleDateString();
-  try{
-    await backend.update(s.index, s);
-    await loadStudents();
-    // switch to view mode (will also redraw chart/table)
-    toggleEditMode(false);
-    renderList();
-    // update header date
-    qs('modalDate').textContent = s.date;
-  }catch(err){ console.error(err); alert('Échec de la sauvegarde.'); }
+  if(activeIdx===null) return; const s = students[activeIdx];
+  ['ecriture','lecture','vocabulaire','grammaire','conjugaison','orthographe'].forEach(k=>{ const el=qs('edit_'+k); if(el) s[k]=clamp(el.value); });
+  s.notes = qs('modalNotes').value || ''; s.date = new Date().toLocaleDateString();
+  try{ await backend.update(s.index, s); await loadStudents(); toggleEditMode(false); renderList(); qs('modalDate').textContent = s.date; }
+  catch(e){ console.error(e); alert('Échec de la sauvegarde.'); }
 }
 
-/* ------------- Print with chart as image ------------- */
 function printReport(){
-  if(!chartInstance) { alert('Le graphique n\'est pas prêt.'); return; }
-  const s = getByIndex(activeIdx);
-  const tableHtml = document.querySelector('#skillsTable').outerHTML;
-  const pedago = qs('pedagoText').innerHTML;
-  const notes = qs('modalNotes').value || '';
-  const date = s.date || new Date().toLocaleDateString();
-  const pct = qs('modalProgress').textContent || '0%';
-  const chartImg = chartInstance.toBase64Image();
+  if(!chartInstance){ alert("Le graphique n'est pas prêt."); return; }
+  const s = students[activeIdx]; const tableHtml = document.querySelector('#skillsTable').outerHTML; const pedago = qs('pedagoText').innerHTML; const notes = qs('modalNotes').value || ''; const date = s.date || new Date().toLocaleDateString(); const pct = qs('modalProgress').textContent || '0%'; const chartImg = chartInstance.toBase64Image();
+  const printable = `<!doctype html><html><head><meta charset="utf-8"/><title>Rapport - ${s.nom} ${s.prenom}</title><style>body{font-family:Arial,Helvetica,sans-serif;color:#111;margin:20px}h2{margin-bottom:4px}.meta{color:#333;margin-bottom:8px}table{border-collapse:collapse;width:100%;margin-top:10px}th,td{border:1px solid #ddd;padding:8px;text-align:left}th{background:#f2f6fa;font-weight:700}.narrative{background:#f7fafc;padding:10px;border-radius:6px;border:1px solid #e8eef3;margin-top:10px}.progress{height:20px;width:${pct};background:linear-gradient(90deg,#06d6a0,#25d0ff);color:#012;text-align:center;font-weight:700;border-radius:6px}.notes{margin-top:10px;border:1px dashed #ddd;padding:8px;background:#fff}.chart{margin-top:10px;text-align:center}</style></head><body><h2>Rapport pédagogique — ${s.nom} ${s.prenom}</h2><div class="meta"><b>Classe:</b> ${s.classe||'—'} &nbsp; | &nbsp; <b>Date:</b> ${date} &nbsp; | &nbsp; <b>Niveau global:</b> ${pct}</div>${tableHtml}<div class="chart"><img src="${chartImg}" style="max-width:100%;height:auto;border:1px solid #eee;border-radius:6px"></div><div class="narrative">${pedago}</div><div style="margin-top:10px"><b>Notes du professeur</b><div class="notes">${notes}</div></div><div style="margin-top:18px;font-size:12px;color:#666">Généré depuis l'application Suivi des élèves.</div></body></html>`;const win = window.open('','_blank','noopener,noreferrer'); win.document.open(); win.document.write(printable); win.document.close(); win.onload = ()=>{ win.focus(); setTimeout(()=>win.print(), 400); }; }
 
-  const printable = `
-    <html>
-    <head>
-      <meta charset=\"utf-8\"/>
-      <title>Rapport - ${s.nom} ${s.prenom}</title>
-      <style>
-        body{ font-family: Arial, Helvetica, sans-serif; color:#111; margin:20px }
-        h2{ margin-bottom:4px }
-        .meta{ color:#333; margin-bottom:8px }
-        table{ border-collapse:collapse; width:100%; margin-top:10px }
-        table th, table td{ border:1px solid #ddd; padding:8px; text-align:left }
-        table th{ background:#f2f6fa; font-weight:700 }
-        .narrative{ background:#f7fafc; padding:10px; border-radius:6px; border:1px solid #e8eef3; margin-top:10px }
-        .progress{ height:20px; width:${pct}; background:linear-gradient(90deg,#06d6a0,#25d0ff); color:#012; text-align:center; font-weight:700; border-radius:6px }
-        .notes{ margin-top:10px; border:1px dashed #ddd; padding:8px; background:#fff }
-        .chart{ margin-top:10px; text-align:center }
-      </style></head>
-<body>
-  <h2>Rapport pédagogique — ${s.nom} ${s.prenom}</h2>
-  <div class=\"meta\"><b>Classe:</b> ${s.classe || '—'} &nbsp; | &nbsp; <b>Date:</b> ${date} &nbsp; | &nbsp; <b>Niveau global:</b> ${pct}</div>
-  ${tableHtml}
-  <div class=\"chart\"><img src=\"${chartImg}\" style=\"max-width:100%; height:auto; border:1px solid #eee; border-radius:6px\"></div>
-  <div class=\"narrative\">${pedago}</div>
-  <div style=\"margin-top:10px\"><b>Notes du professeur</b><div class=\"notes\">${notes}</div></div>
-  <div style=\"margin-top:18px; font-size:12px; color:#666\">Généré depuis l'application Suivi des élèves.</div>
-</body>
-</html>
+async function loadStudents(){ const btn = qs('btnRefresh'); setLoading(btn,true); try{ const data = await backend.getAll(); students = Array.isArray(data) ? data.map((r,i)=>({ index: r.index ?? i, nom: r.nom || r.Nom || '', prenom: r.prenom || r.Prenom || r['Prénom'] || '', sexe: r.sexe || r.Sexe || 'H', classe: r.classe || r.Classe || '', notes: r.notes || r.Notes || '', ecriture: Number(r.ecriture ?? r.Ecriture ?? 0), lecture: Number(r.lecture ?? r.Lecture ?? 0), vocabulaire: Number(r.vocabulaire ?? r.Vocabulaire ?? 0), grammaire: Number(r.grammaire ?? r.Grammaire ?? 0), conjugaison: Number(r.conjugaison ?? r.Conjugaison ?? 0), orthographe: Number(r.orthographe ?? r.Orthographe ?? 0), date: r.date || r.Date || new Date().toLocaleDateString() })) : []; renderList(); } catch(e){ console.error(e); alert("Impossible de charger les données. Vérifiez رابط الويب وصلاحيات الوصول."); } finally{ setLoading(btn,false); } }
 
-`; const win = window.open('','_blank','noopener,noreferrer'); win.document.open(); win.document.write(printable); win.document.close(); win.onload = ()=>{ win.focus(); setTimeout(()=>{ win.print(); }, 400); }; }
+function attachEvents(){ qs('btnAdd').addEventListener('click', addStudent); qs('btnClear').addEventListener('click', clearForm); qs('btnReset').addEventListener('click', resetFilters); qs('btnRefresh').addEventListener('click', loadStudents); qs('search').addEventListener('input', renderList); qs('filterClasse').addEventListener('change', renderList); qs('sortBy').addEventListener('change', renderList); qs('toggleEditBtn').addEventListener('click', ()=>toggleEditMode(true)); }
 
-/* ------------- Load from Google Sheets ------------- */ async function loadStudents(){ const btn = qs('refreshBtn'); setLoading(btn, true); try{ const data = await backend.getAll(); // On attend un tableau d'objets avec un champ unique d'identification: index students = Array.isArray(data) ? data.map((r,i)=>({ index: r.index ?? i, // fallback si le script ne renvoie pas index nom: r.nom || r.Nom || '', prenom: r.prenom || r.Prénom || r.Prenom || '', sexe: r.sexe || r.Sexe || 'H', classe: r.classe || r.Classe || '', notes: r.notes || r.Notes || '', ecriture: Number(r.ecriture ?? r.Ecriture ?? 0), lecture: Number(r.lecture ?? r.Lecture ?? 0), vocabulaire: Number(r.vocabulaire ?? r.Vocabulaire ?? 0), grammaire: Number(r.grammaire ?? r.Grammaire ?? 0), conjugaison: Number(r.conjugaison ?? r.Conjugaison ?? 0), orthographe: Number(r.orthographe ?? r.Orthographe ?? 0), date: r.date || r.Date || new Date().toLocaleDateString() })) : []; renderList(); }catch(err){ console.error(err); alert('Impossible de charger les données. Vérifiez l'URL du Web App, le déploiement et les autorisations d'accès.'); } finally{ setLoading(btn, false); } }
-
-/* ------------- Init ------------- */ function init(){ // le libellé "/20" déjà statique dans le tableau loadStudents(); } init(); </script>
+function init(){ attachEvents(); loadStudents(); } init(); </script>
 
 </body>
 </html>
