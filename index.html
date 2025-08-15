@@ -695,6 +695,121 @@ init();
   window.addEventListener('DOMContentLoaded', loadFromSheets);
 })();
 </script>
+<!-- ===== ADD-ON: ربط Google Sheets عبر GET (لا يغيّر كودك) ===== -->
+<script>
+(function(){
+  // رابط Web App /exec الجديد:
+  const API_BASE = 'https://script.google.com/macros/s/AKfycbz8bQjIfWybtEQ61QuDpAz6pIxtEM_n9J9nTaIxln7dyU5Ne1Ly95jy6m6OGgJQ-v9c-A/exec';
+  const MAX_SCORE = 20;
+
+  function clamp(v){ v=Number(v)||0; return Math.max(0, Math.min(MAX_SCORE, v)); }
+  async function getJSON(params){
+    const url = API_BASE + '?' + new URLSearchParams(params).toString();
+    const res = await fetch(url, { method:'GET' });
+    const text = await res.text();
+    try { return JSON.parse(text); }
+    catch(e){ throw new Error('Apps Script لم يرجع JSON. تأكد من النشر/الصلاحيات. مقتطف: '+text.slice(0,120)); }
+  }
+
+  const backend = {
+    getAll(){ return getJSON({ action:'get' }); },
+    create(s){ return getJSON({ action:'create', ...s }); },
+    update(index,s){ return getJSON({ action:'update', index, ...s }); },
+    remove(index){ return getJSON({ action:'delete', index }); }
+  };
+
+  // نحافظ على كودك كما هو، ونضيف مزامنة سحابية فوقه
+  function normalize(r,i){ return {
+    index: Number(r.index ?? i),
+    nom: r.nom || r.Nom || '',
+    prenom: r.prenom || r.Prenom || r['Prénom'] || '',
+    sexe: r.sexe || r.Sexe || 'H',
+    classe: r.classe || r.Classe || '',
+    notes: r.notes || r.Notes || '',
+    ecriture: clamp(r.ecriture ?? r.Ecriture ?? 0),
+    lecture: clamp(r.lecture ?? r.Lecture ?? 0),
+    vocabulaire: clamp(r.vocabulaire ?? r.Vocabulaire ?? 0),
+    grammaire: clamp(r.grammaire ?? r.Grammaire ?? 0),
+    conjugaison: clamp(r.conjugaison ?? r.Conjugaison ?? 0),
+    orthographe: clamp(r.orthographe ?? r.Orthographe ?? 0),
+    date: r.date || r.Date || new Date().toLocaleDateString()
+  };}
+
+  async function loadFromSheets(){
+    try{
+      const data = await backend.getAll();
+      if(Array.isArray(data)){
+        window.students = data.map(normalize);
+        if (typeof persist === 'function') persist();
+        if (typeof renderList === 'function') renderList();
+        console.log('[Sheets] loaded:', students.length);
+      }
+    }catch(err){
+      console.error('[Sheets] GET failed:', err.message);
+    }
+  }
+
+  const _add = window.addStudent;
+  window.addStudent = async function(){
+    const s = readFormValues();
+    if(!s.nom || !s.prenom){ alert('Nom et prénom requis'); return; }
+    try{
+      await backend.create(s);
+      await loadFromSheets();
+      clearForm();
+      alert('Élève ajouté (synchronisé).');
+    }catch(e){
+      alert('Éخفق الاتصال بالشيت — تم الحفظ محليًا فقط.');
+      _add();
+    }
+  };
+
+  const _saveEdit = window.saveEdit;
+  window.saveEdit = async function(){
+    if(window.activeIdx===null){ return _saveEdit(); }
+    const s = students[activeIdx];
+    ['ecriture','lecture','vocabulaire','grammaire','conjugaison','orthographe'].forEach(k=>{
+      const el = document.getElementById('edit_'+k);
+      if(el) s[k] = clamp(el.value);
+    });
+    s.notes = document.getElementById('modalNotes').value || '';
+    s.date = new Date().toLocaleDateString();
+
+    if (s.index == null) return _saveEdit(); // لا يملك رقم سطر بعد
+
+    try{
+      await backend.update(s.index, s);
+      await loadFromSheets();
+      if (typeof toggleEditMode === 'function') toggleEditMode(false);
+      const d = document.getElementById('modalDate'); if(d) d.textContent = s.date;
+      alert('Modifications synchronisées.');
+    }catch(e){
+      alert('فشل مزامنة التعديلات — تم تحديثها محليًا فقط.');
+      _saveEdit();
+    }
+  };
+
+  const _del = window.deleteStudent;
+  window.deleteStudent = async function(i){
+    const s = students[i];
+    if(!s) return;
+    if(!confirm('Supprimer cet élève ?')) return;
+    if (s.index == null) return _del(i);
+    try{
+      await backend.remove(s.index);
+      await loadFromSheets();
+      if (typeof closeModal === 'function') closeModal();
+      alert('Élève supprimé (synchronisé).');
+    }catch(e){
+      alert('فشل حذف السحابي — تم الحذف محليًا فقط.');
+      _del(i);
+    }
+  };
+
+  // بعد أن ينفذ كودك init()، نحاول التحميل من الشيت
+  window.addEventListener('DOMContentLoaded', loadFromSheets);
+})();
+</script>
 
 </body>
 </html>
