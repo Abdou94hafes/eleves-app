@@ -1,6 +1,29 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <!-- Firebase App (Core) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+
+<!-- Firestore -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBX8Bs3sxY5XY_Yqeqvn9lWpF43gUHMPKI",
+    authDomain: "monprojeteleve.firebaseapp.com",
+    projectId: "monprojeteleve",
+    storageBucket: "monprojeteleve.appspot.com",
+    messagingSenderId: "1097347950486",
+    appId: "1:1097347950486:web:fbdde221bb2793928e9fb7",
+    measurementId: "G-ZZL5PP7DBC"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+
+  // Initialize Firestore
+  const db = firebase.firestore();
+</script>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Suivi des élèves — Firebase</title>
