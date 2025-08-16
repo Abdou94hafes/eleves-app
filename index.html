@@ -9,6 +9,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <!-- Font -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<!-- SheetJS (Excel/CSV parsing) -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
   :root{
@@ -51,8 +53,10 @@
   .btn-edit{ background:var(--warn); color:#000 }
   .btn-del{ background:var(--bad); color:#fff }
   .btn-pdf{ background:var(--accent); color:#002733 }
+  .btn-excel{ background:#1f6f43; color:#eafff4 }
+  .btn-behav{ background:#8a5cf6; color:#fff }
 
-  .toolbar{ display:flex; gap:10px; margin-bottom:10px; align-items:center; flex-wrap:wrap }
+  .toolbar{ display:flex; gap:10px; margin-bottom:12px; align-items:center; flex-wrap:wrap }
   .toolbar input[type="search"]{ flex:1; min-width:180px }
   .list{ list-style:none; margin:0; padding:0; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,.03) }
   .list li{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.03); transition:background .14s }
@@ -82,7 +86,6 @@
   .actions{ display:flex; gap:10px; margin-top:12px; justify-content:flex-end; flex-wrap:wrap }
   .loading{ opacity:.6; pointer-events:none }
 
-  /* Toast */
   #toast{ position: fixed; bottom:18px; right:18px; background:#0f2a3b; color:#e6f7ff; padding:10px 12px; border:1px solid rgba(255,255,255,.08); border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,.4); display:none; z-index:1000 }
 </style>
 </head>
@@ -155,12 +158,18 @@
       </select>
       <button class="btn btn-ghost" id="btnReset">Réinitialiser</button>
       <button class="btn btn-ghost" id="btnRefresh" title="Actualiser"><i class="fa-solid fa-rotate"></i></button>
+
+      <!-- Import Excel/CSV -->
+      <input type="file" id="excelInput" accept=".xlsx,.xls,.csv" style="display:none">
+      <button class="btn btn-excel" id="btnImport" title="Importer Excel">
+        <i class="fa-solid fa-file-excel"></i> Importer
+      </button>
     </div>
     <ul id="list" class="list"></ul>
   </section>
 </main>
 
-<!-- Modal -->
+<!-- Modal: Rapport -->
 <div id="modal" class="modal" aria-hidden="true">
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-header">
@@ -183,6 +192,8 @@
             <tbody></tbody>
           </table>
           <div class="narrative" id="pedagoText">Texte pédagogique ...</div>
+          <!-- Ajout: résumé comportement -->
+          <div class="narrative" id="behavSummary" style="margin-top:8px; display:none"></div>
         </div>
 
         <div id="reportRight">
@@ -203,9 +214,50 @@
       </div>
 
       <div class="actions">
-        <button class="btn btn-pdf" id="btnPrint"><i class="fa-solid fa-print"></i> Imprimer le rapport</button>
+        <button class="btn btn-pdf" id="btnPDF" title="Télécharger PDF"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+        <button class="btn btn-pdf" id="btnPrint"><i class="fa-solid fa-print"></i> Imprimer</button>
         <button id="saveEditBtn" class="btn btn-edit" style="display:none"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>
         <button class="btn btn-ghost" id="btnCloseModal2">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Comportement -->
+<div id="behavModal" class="modal" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="behavTitle">
+    <div class="modal-header">
+      <div>
+        <div id="behavTitle" style="font-weight:800; font-size:16px">Évaluation du comportement</div>
+        <div style="font-size:13px; color:#445b6b" id="behavSub">—</div>
+      </div>
+      <button class="close" id="behavClose" title="Fermer">&times;</button>
+    </div>
+
+    <div style="margin-top:10px">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+        <div class="card" style="background:#f8fafc; color:#0b1b26">
+          <h3 style="margin:0 0 8px">Infractions</h3>
+          <label><input type="checkbox" id="bh_bavard"> Bavardage répété (-2)</label>
+          <label><input type="checkbox" id="bh_irrespect"> Manque de respect (-4)</label>
+          <label><input type="checkbox" id="bh_devoir"> Devoir non remis (-2)</label>
+          <label>Retards (nb) <input type="number" id="bh_retard" min="0" value="0" style="width:80px"></label>
+          <label>Oubli de matériel (nb) <input type="number" id="bh_oubli" min="0" value="0" style="width:80px"></label>
+        </div>
+        <div class="card" style="background:#f8fafc; color:#0b1b26">
+          <h3 style="margin:0 0 8px">Points positifs</h3>
+          <label><input type="checkbox" id="bh_participation"> Participation active (+2)</label>
+          <label><input type="checkbox" id="bh_aide"> Aide aux camarades (+1)</label>
+          <label>Commentaire
+            <textarea id="bh_comment" style="width:100%; min-height:60px; background:#eef6ff"></textarea>
+          </label>
+          <div style="margin-top:6px"><b>Score comportement (sur 20):</b> <span id="bh_score">20</span></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-edit" id="bh_save"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>
+        <button class="btn btn-ghost" id="bh_cancel">Fermer</button>
       </div>
     </div>
   </div>
@@ -231,20 +283,29 @@ const skillsLabels = ["Écriture","Lecture","Vocabulaire","Grammaire","Conjugais
 const qs = (id)=> document.getElementById(id);
 const setLoading = (el,on)=>{ if(!el) return; el.classList.toggle('loading',!!on); el.disabled=!!on; };
 const clamp = v => Math.max(0, Math.min(MAX_SCORE, Number(v)||0));
-function toast(msg){ const t=qs('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none', 2400); }
+function toast(msg){ const t=qs('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none', 2600); }
+
+/* debounce للبحث */
+function debounce(fn, wait=160){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), wait); }; }
+const renderListDebounced = debounce(renderList, 160);
 
 /* ================== API via GET ================== */
 async function getJSON(params){
   const url = API_BASE + '?' + new URLSearchParams(params).toString();
-  const res = await fetch(url, { method: 'GET' });
-  let data;
-  try { data = await res.json(); }
-  catch(e){
+  let res;
+  try { res = await fetch(url, { method: 'GET', cache: 'no-store' }); }
+  catch (e) { alert('Erreur réseau.'); throw e; }
+  if (!res.ok) {
+    const txt = await res.text().catch(()=> '');
+    throw new Error('HTTP '+res.status+' '+txt.slice(0,120));
+  }
+  const ct = res.headers.get('content-type')||'';
+  if (!ct.includes('application/json')) {
     const text = await res.text();
     console.error('Non-JSON response:', text.slice(0,200));
-    throw new Error("Impossible de charger les données. Vérifiez lien Web App et permissions d'accès.");
+    throw new Error("Réponse non JSON (vérifiez les permissions Web App).");
   }
-  return data;
+  return res.json();
 }
 const backend = {
   getAll(){           return getJSON({ action:'get' }); },
@@ -267,6 +328,10 @@ function readFormValues(){
     grammaire: clamp(qs('grammaire').value),
     conjugaison: clamp(qs('conjugaison').value),
     orthographe: clamp(qs('orthographe').value),
+    // Champs comportement optionnels (compatibles si غير موجودة في الـSheet)
+    comportement: Number(0),
+    comportement_details: '',
+    comportement_commentaire: '',
     date: new Date().toLocaleDateString()
   };
 }
@@ -290,9 +355,14 @@ function clearForm(){
 
 /* ================== List / Filters / Sort ================== */
 function uniqueClasses(){ const set = new Set(students.map(s=>s.classe).filter(Boolean)); return ['__all__', ...[...set].sort()]; }
+let _classesSignature = '';
 function populateFilter(){
+  const classes = uniqueClasses();
+  const sig = classes.join('|');
+  if (sig === _classesSignature) return;
+  _classesSignature = sig;
   const sel = qs('filterClasse'); const prev = sel.value;
-  sel.innerHTML = uniqueClasses().map(c=>`<option value="${c}">${c==='__all__'?'Toutes les classes':c}</option>`).join('');
+  sel.innerHTML = classes.map(c=>`<option value="${c}">${c==='__all__'?'Toutes les classes':c}</option>`).join('');
   sel.value = [...sel.options].some(o=>o.value===prev) ? prev : '__all__';
 }
 function resetFilters(){ qs('search').value=''; qs('filterClasse').value='__all__'; qs('sortBy').value='name-asc'; renderList(); }
@@ -327,8 +397,9 @@ function renderList(){
           <div style="font-size:12px; color:var(--sub)">${s.classe||'—'}</div>
         </div>
       </div>
-      <div style="display:flex; gap:8px">
+      <div style="display:flex; gap:8px; flex-wrap:wrap">
         <button class="btn btn-ghost" title="Voir le rapport" onclick="openModal(${idx}, false)"><i class="fa-solid fa-file-lines"></i> Rapport</button>
+        <button class="btn btn-behav" title="Évaluer le comportement" onclick="openBehav(${idx})"><i class="fa-solid fa-face-smile"></i> Comportement</button>
         <button class="btn btn-edit" title="Modifier" onclick="openModal(${idx}, true)"><i class="fa-solid fa-pen-to-square"></i> Modifier</button>
         <button class="btn btn-del" title="Supprimer" onclick="deleteStudent(${idx})"><i class="fa-solid fa-trash"></i></button>
       </div>`;
@@ -344,7 +415,7 @@ async function deleteStudent(arrIndex){
     const r = await backend.remove(s.index);
     if(r && r.ok===false){ throw new Error(r.error||'delete failed'); }
     await loadStudents();
-    closeModal();
+    closeModal(); closeBehav();
     toast('Élève supprimé.');
   } catch(e){ alert('Suppression impossible.'); }
 }
@@ -364,6 +435,15 @@ function openModal(arrIndex, editMode){
   skillsLabels.forEach((lab,i)=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${lab}</td><td>${arr[i] ?? 0}</td>`; tbody.appendChild(tr); });
 
   qs('pedagoText').innerHTML = generatePedagoText(s);
+
+  // résumé comportement (si موجود)
+  const bhBox = qs('behavSummary');
+  if (typeof s.comportement !== 'undefined' && s.comportement !== '' ){
+    bhBox.style.display='block';
+    const details = s.comportement_details ? ` — <i>${s.comportement_details}</i>` : '';
+    bhBox.innerHTML = `<b>Comportement:</b> ${s.comportement}/20${details}`;
+  } else { bhBox.style.display='none'; bhBox.innerHTML = ''; }
+
   qs('modalNotes').value = s.notes || '';
   renderStudentChart(arr);
 
@@ -390,14 +470,32 @@ function renderStudentChart(data){
   });
 }
 
-/* ================== Pedagogical ================== */
+/* ================== Pedagogical (français, par compétence) ================== */
+function describeSkillFR(name, v){
+  if (v < 10) return `<b>${name}</b> (${v}/20) : acquis fragiles ; renforcer les bases par des exercices guidés.`;
+  if (v < 15) return `<b>${name}</b> (${v}/20) : niveau satisfaisant ; consolider par une pratique régulière.`;
+  return `<b>${name}</b> (${v}/20) : très bon niveau ; proposer des activités d’enrichissement.`;
+}
 function generatePedagoText(s){
-  const scores = [s.ecriture,s.lecture,s.vocabulaire,s.grammaire,s.conjugaison,s.orthographe].map(v=>Number(v)||0);
+  const map = {
+    "Écriture": s.ecriture, "Lecture": s.lecture, "Vocabulaire": s.vocabulaire,
+    "Grammaire": s.grammaire, "Conjugaison": s.conjugaison, "Orthographe": s.orthographe
+  };
+  const scores = Object.values(map).map(v=>Number(v)||0);
   const mean = Math.round((scores.reduce((a,b)=>a+b,0)/scores.length)*100)/100;
   const best = Math.max(...scores), worst = Math.min(...scores);
+  const skills = Object.keys(map);
   const bestIdx = scores.indexOf(best), worstIdx = scores.indexOf(worst);
-  let level; if(mean >= 15) level='maîtrise solide'; else if(mean >= 10) level='compétences en progression'; else level='besoin d’un accompagnement ciblé';
-  return `<strong>Analyse pédagogique :</strong> L'élève présente une <em>${level}</em> (moyenne ${mean}/20). Les compétences les plus abouties sont <strong>${skillsLabels[bestIdx]}</strong> (${best}/20), tandis que <strong>${skillsLabels[worstIdx]}</strong> (${worst}/20) nécessite(nt) une attention particulière. Pistes pédagogiques : renforcement par activités différenciées, exercices de remédiation ciblée et évaluation formative régulière.`;
+
+  let niveau;
+  if(mean >= 15) niveau='très bon ensemble de compétences';
+  else if(mean >= 10) niveau='compétences en progression';
+  else niveau='besoin d’un accompagnement renforcé';
+
+  const lignes = skills.map((k,i)=> describeSkillFR(k, scores[i]));
+  return `<strong>Analyse pédagogique :</strong> L’élève présente ${niveau} (moyenne ${mean}/20). 
+          Point fort : <strong>${skills[bestIdx]}</strong> (${best}/20) ; axe prioritaire : <strong>${skills[worstIdx]}</strong> (${worst}/20).
+          <br><br><strong>Appréciation par compétence :</strong><br>${lignes.join('<br>')}`;
 }
 
 /* ================== Edit mode ================== */
@@ -451,7 +549,7 @@ async function saveEdit(){
   }catch(err){ alert('Échec de la sauvegarde.'); }
 }
 
-/* ================== Print ================== */
+/* ================== Print / PDF ================== */
 function printReport(){
   if(!chartInstance) { alert("Le graphique n'est pas prêt."); return; }
   const s = students[activeIdx];
@@ -462,33 +560,114 @@ function printReport(){
   const pct = qs('modalProgress').textContent || '0%';
   const chartImg = chartInstance.toBase64Image();
 
+  const behavHtml = (typeof s.comportement!=='undefined' && s.comportement!=='')
+    ? `<div class="narrative"><b>Comportement:</b> ${s.comportement}/20 ${s.comportement_details?('— <i>'+s.comportement_details+'</i>'):''}</div>`
+    : '';
+
   const printable = `
-    <html><head><meta charset="utf-8"/>
+    <html>
+    <head>
+      <meta charset="utf-8"/>
       <title>Rapport - ${s.nom} ${s.prenom}</title>
       <style>
-        body{font-family:Arial,Helvetica,sans-serif;color:#111;margin:20px}
-        h2{margin-bottom:4px}.meta{color:#333;margin-bottom:8px}
-        table{border-collapse:collapse;width:100%;margin-top:10px}
-        th,td{border:1px solid #ddd;padding:8px;text-align:left}
-        th{background:#f2f6fa;font-weight:700}
-        .narrative{background:#f7fafc;padding:10px;border-radius:6px;border:1px solid #e8eef3;margin-top:10px}
-        .progress{height:20px;width:${pct};background:linear-gradient(90deg,#06d6a0,#25d0ff);color:#012;text-align:center;font-weight:700;border-radius:6px}
-        .notes{margin-top:10px;border:1px dashed #ddd;padding:8px;background:#fff}
-        .chart{margin-top:10px;text-align:center}
+        body{ font-family: Arial, Helvetica, sans-serif; color:#111; margin:20px }
+        h2{ margin-bottom:4px }
+        .meta{ color:#333; margin-bottom:8px }
+        table{ border-collapse:collapse; width:100%; margin-top:10px }
+        table th, table td{ border:1px solid #ddd; padding:8px; text-align:left }
+        table th{ background:#f2f6fa; font-weight:700 }
+        .narrative{ background:#f7fafc; padding:10px; border-radius:6px; border:1px solid #e8eef3; margin-top:10px }
+        .progress{ height:20px; width:${pct}; background:linear-gradient(90deg,#06d6a0,#25d0ff); color:#012; text-align:center; font-weight:700; border-radius:6px }
+        .notes{ margin-top:10px; border:1px dashed #ddd; padding:8px; background:#fff }
+        .chart{ margin-top:10px; text-align:center }
       </style>
-    </head><body>
+    </head>
+    <body>
       <h2>Rapport pédagogique — ${s.nom} ${s.prenom}</h2>
-      <div class="meta"><b>Classe:</b> ${s.classe||'—'} &nbsp; | &nbsp; <b>Date:</b> ${date} &nbsp; | &nbsp; <b>Niveau global:</b> ${pct}</div>
+      <div class="meta"><b>Classe:</b> ${s.classe || '—'} &nbsp; | &nbsp; <b>Date:</b> ${date} &nbsp; | &nbsp; <b>Niveau global:</b> ${pct}</div>
       ${tableHtml}
-      <div class="chart"><img src="${chartImg}" style="max-width:100%;height:auto;border:1px solid #eee;border-radius:6px"></div>
+      <div class="chart"><img src="${chartImg}" style="max-width:100%; height:auto; border:1px solid #eee; border-radius:6px"></div>
       <div class="narrative">${pedago}</div>
+      ${behavHtml}
       <div style="margin-top:10px"><b>Notes du professeur</b><div class="notes">${notes}</div></div>
-      <div style="margin-top:18px;font-size:12px;color:#666">Généré depuis l'application Suivi des élèves.</div>
-    </body></html>`;
+      <div style="margin-top:18px; font-size:12px; color:#666">Généré depuis l'application Suivi des élèves.</div>
+    </body>
+    </html>
+  `;
   const win = window.open('','_blank','noopener,noreferrer');
   win.document.open(); win.document.write(printable); win.document.close();
-  win.onload = ()=>{ win.focus(); setTimeout(()=>{ win.print(); }, 400); };
+  win.onload = ()=>{ win.focus(); setTimeout(()=>{ win.print(); }, 350); };
 }
+// زر PDF (اختر Save as PDF في نافذة الطباعة)
+function downloadPDF(){ printReport(); }
+
+/* ================== Comportement ================== */
+const bhModal = qs('behavModal');
+function behavComputeScore(){
+  let base = 20;
+  // pénalités
+  if (qs('bh_bavard').checked) base -= 2;
+  if (qs('bh_irrespect').checked) base -= 4;
+  if (qs('bh_devoir').checked) base -= 2;
+  const retards = Math.max(0, Number(qs('bh_retard').value)||0);
+  const oublis = Math.max(0, Number(qs('bh_oubli').value)||0);
+  base -= retards * 1;
+  base -= oublis * 1;
+  // bonus
+  if (qs('bh_participation').checked) base += 2;
+  if (qs('bh_aide').checked) base += 1;
+  base = Math.max(0, Math.min(20, base));
+  qs('bh_score').textContent = base;
+  return base;
+}
+['bh_bavard','bh_irrespect','bh_devoir','bh_participation','bh_aide','bh_retard','bh_oubli'].forEach(id=>{
+  document.addEventListener('input', (e)=>{ if(e.target && e.target.id===id) behavComputeScore(); });
+});
+function openBehav(arrIndex){
+  activeIdx = arrIndex;
+  const s = students[arrIndex]; if(!s) return;
+  qs('behavTitle').textContent = `Évaluation — ${s.nom} ${s.prenom}`;
+  qs('behavSub').textContent = s.classe ? `Classe: ${s.classe}` : '—';
+  // reset fields
+  ['bh_bavard','bh_irrespect','bh_devoir','bh_participation','bh_aide'].forEach(id=> qs(id).checked=false);
+  qs('bh_retard').value=0; qs('bh_oubli').value=0; qs('bh_comment').value = s.comportement_commentaire || '';
+  // if existing details, try to reflect (basic)
+  behavComputeScore();
+  bhModal.classList.add('show'); bhModal.setAttribute('aria-hidden','false');
+}
+function closeBehav(){ bhModal.classList.remove('show'); bhModal.setAttribute('aria-hidden','true'); }
+qs('bh_cancel').addEventListener('click', closeBehav);
+qs('behavClose').addEventListener('click', closeBehav);
+
+async function saveBehav(){
+  if(activeIdx===null) return;
+  const s = students[activeIdx];
+  const retards = Math.max(0, Number(qs('bh_retard').value)||0);
+  const oublis = Math.max(0, Number(qs('bh_oubli').value)||0);
+
+  const detailsArr = [];
+  if (qs('bh_bavard').checked) detailsArr.push('Bavardage');
+  if (qs('bh_irrespect').checked) detailsArr.push('Manque de respect');
+  if (qs('bh_devoir').checked) detailsArr.push('Devoir non remis');
+  if (retards>0) detailsArr.push(`Retards x${retards}`);
+  if (oublis>0) detailsArr.push(`Oubli matériel x${oublis}`);
+  if (qs('bh_participation').checked) detailsArr.push('Participation active (+)');
+  if (qs('bh_aide').checked) detailsArr.push('Aide aux camarades (+)');
+
+  s.comportement = behavComputeScore();
+  s.comportement_details = detailsArr.join(', ');
+  s.comportement_commentaire = (qs('bh_comment').value||'').trim();
+  s.date = new Date().toLocaleDateString();
+
+  try{
+    const r = await backend.update(s.index, s);
+    if(r && r.ok===false){ throw new Error(r.error||'update failed'); }
+    await loadStudents();
+    closeBehav();
+    toast('Comportement enregistré.');
+  }catch(e){ alert('Échec de la sauvegarde du comportement.'); }
+}
+qs('bh_save').addEventListener('click', saveBehav);
 
 /* ================== Load & Events ================== */
 async function loadStudents(){
@@ -508,6 +687,10 @@ async function loadStudents(){
       grammaire: Number(r.grammaire ?? r.Grammaire ?? 0),
       conjugaison: Number(r.conjugaison ?? r.Conjugaison ?? 0),
       orthographe: Number(r.orthographe ?? r.Orthographe ?? 0),
+      // champs comportement si موجودة بالورقة، وإلا افتراضات
+      comportement: (r.comportement ?? r.Comportement ?? ''),
+      comportement_details: (r.comportement_details ?? r['Comportement details'] ?? ''),
+      comportement_commentaire: (r.comportement_commentaire ?? r['Comportement commentaire'] ?? ''),
       date: r.date || r.Date || new Date().toLocaleDateString()
     })) : [];
     renderList();
@@ -518,19 +701,93 @@ async function loadStudents(){
   }
 }
 
+/* ================== Import Excel/CSV ================== */
+const headerMap = {
+  nom:['nom','Nom','NOM'],
+  prenom:['prenom','prénom','Prenom','Prénom','PRENOM'],
+  sexe:['sexe','Sexe','SEXE','gender','Genre'],
+  classe:['classe','Classe','CLASS'],
+  notes:['notes','Notes','Remarques','Commentaire'],
+  ecriture:['ecriture','Écriture','Ecriture','ECRITURE'],
+  lecture:['lecture','Lecture','LECTURE'],
+  vocabulaire:['vocabulaire','Vocabulaire','VOCABULAIRE'],
+  grammaire:['grammaire','Grammaire','GRAMMAIRE'],
+  conjugaison:['conjugaison','Conjugaison','CONJUGAISON'],
+  orthographe:['orthographe','Orthographe','ORTHOGRAPHE'],
+  comportement:['comportement','Comportement'],
+  comportement_details:['comportement_details','Comportement details'],
+  comportement_commentaire:['comportement_commentaire','Comportement commentaire'],
+  date:['date','Date']
+};
+function normalizeRow(row){
+  const obj = {};
+  for(const key in headerMap){
+    const aliases = headerMap[key];
+    let foundVal = '';
+    for(const alias of aliases){
+      if(row.hasOwnProperty(alias)){ foundVal = row[alias]; break; }
+    }
+    obj[key] = foundVal ?? '';
+  }
+  ['ecriture','lecture','vocabulaire','grammaire','conjugaison','orthographe','comportement'].forEach(k=>{
+    obj[k] = (k==='comportement') ? Math.max(0, Math.min(20, Number(obj[k])||0)) : clamp(obj[k]);
+  });
+  obj.sexe = (String(obj.sexe||'H').toUpperCase().startsWith('F')) ? 'F' : 'H';
+  obj.date = obj.date || new Date().toLocaleDateString();
+  return obj;
+}
+async function importRows(rows){
+  if(!rows.length){ toast('Aucune donnée trouvée.'); return; }
+  if(!confirm(`Importer ${rows.length} enregistrements ?`)) return;
+  for (let i=0;i<rows.length;i++){
+    const r = normalizeRow(rows[i]);
+    try{ await backend.create(r); } catch(e){ console.warn('create failed row', i, e); }
+  }
+  await loadStudents();
+  toast('Import terminé.');
+}
+function handleExcelFile(file){
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    const data = new Uint8Array(e.target.result);
+    const wb = XLSX.read(data, {type:'array'});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const json = XLSX.utils.sheet_to_json(ws, {defval:''});
+    importRows(json);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+/* ================== Events ================== */
 function attachEvents(){
   qs('btnAdd').addEventListener('click', addStudent);
   qs('btnClear').addEventListener('click', clearForm);
   qs('btnReset').addEventListener('click', resetFilters);
   qs('btnRefresh').addEventListener('click', loadStudents);
-  qs('search').addEventListener('input', renderList);
+  qs('search').addEventListener('input', renderListDebounced);
   qs('filterClasse').addEventListener('change', renderList);
   qs('sortBy').addEventListener('change', renderList);
   qs('toggleEditBtn').addEventListener('click', ()=>toggleEditMode(true));
   qs('btnPrint').addEventListener('click', printReport);
+  qs('btnPDF').addEventListener('click', downloadPDF);
   qs('btnCloseModal2').addEventListener('click', closeModal);
-}
+  qs('btnCloseModal').addEventListener('click', closeModal);
 
+  // Comportement
+  qs('bh_save').addEventListener('click', saveBehav);
+  qs('bh_cancel').addEventListener('click', closeBehav);
+  qs('behavClose').addEventListener('click', closeBehav);
+
+  // Import Excel/CSV
+  qs('btnImport').addEventListener('click', ()=> qs('excelInput').click());
+  qs('excelInput').addEventListener('change', (e)=>{
+    const file = e.target.files && e.target.files[0];
+    if(!file) return;
+    if(!/\.(xlsx|xls|csv)$/i.test(file.name)){ alert('Veuillez choisir un fichier Excel/CSV.'); return; }
+    handleExcelFile(file);
+    e.target.value='';
+  });
+}
 function init(){ attachEvents(); loadStudents(); }
 init();
 </script>
