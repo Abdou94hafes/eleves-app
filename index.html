@@ -1,100 +1,20 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Suivi des élèves — Français</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Suivi des élèves — Français</title>
 
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<!-- Font -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<!-- SheetJS (Excel/CSV parsing) -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-<style>
-  :root{
-    --bg:#0D1B2A; --panel:#101e2d; --card:#14273a; --muted:#1f3550;
-    --accent:#00B4D8; --accent-2:#0096C7; --text:#E0E1DD; --sub:#A9BCD0;
-    --good:#06d6a0; --warn:#ffd60a; --bad:#e63946;
-  }
-  *{box-sizing:border-box}
-  body{
-    margin:0; font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    background: radial-gradient(800px 400px at 10% -10%, rgba(0,180,216,0.06), transparent), var(--bg);
-    color:var(--text); -webkit-font-smoothing:antialiased;
-  }
-  header{ background:rgba(13,27,42,.85); border-bottom:1px solid rgba(255,255,255,.03); position:sticky; top:0; z-index:10; }
-  .wrap{ max-width:1200px; margin:0 auto; padding:16px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
-  h1{ margin:0; font-size:18px; display:flex; align-items:center; gap:10px }
-  .badge{ background:var(--accent); color:#002733; padding:6px 10px; border-radius:999px; font-weight:700; font-size:12px }
-
-  .container{ max-width:1200px; margin:20px auto; padding:0 16px; display:grid; grid-template-columns:1fr 1fr; gap:18px; }
-  @media (max-width:980px){ .container{ grid-template-columns:1fr } }
-
-  .card{ background:linear-gradient(180deg,var(--panel),var(--card)); border-radius:14px; padding:14px; border:1px solid rgba(255,255,255,.03); box-shadow:0 12px 30px rgba(0,0,0,.45); }
-  .card h2{ margin:0 0 10px; color:var(--sub); font-size:15px }
-
-  label{ display:block; color:#cfe8f6; font-weight:600; margin:8px 0 6px; font-size:13px }
-  input[type="text"], input[type="number"], select, textarea {
-    width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.06);
-    background: linear-gradient(180deg,#0f2a3b,#0b2130); color:var(--text); outline:none;
-  }
-  input[type="number"]::-webkit-inner-spin-button{ opacity: .6 }
-  textarea{ min-height:80px; resize:vertical; background:linear-gradient(180deg,#0f2d40,#0b2434) }
-
-  .row{ display:grid; grid-template-columns:1fr 1fr; gap:10px }
-  .row-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px }
-  @media (max-width:700px){ .row, .row-3{ grid-template-columns:1fr } }
-
-  .btn{ background:var(--accent); color:#002733; padding:10px 12px; border-radius:10px; border:none; cursor:pointer; font-weight:700; display:inline-flex; gap:8px; align-items:center; transition:transform .12s ease, box-shadow .12s; }
-  .btn:hover{ transform:translateY(-3px); box-shadow:0 10px 30px rgba(0,180,216,.12) }
-  .btn-ghost{ background:transparent; color:var(--text); border:1px solid rgba(255,255,255,.06) }
-  .btn-edit{ background:var(--warn); color:#000 }
-  .btn-del{ background:var(--bad); color:#fff }
-  .btn-pdf{ background:var(--accent); color:#002733 }
-  .btn-excel{ background:#1f6f43; color:#eafff4 }
-  .btn-behav{ background:#8a5cf6; color:#fff }
-
-  .toolbar{ display:flex; gap:10px; margin-bottom:12px; align-items:center; flex-wrap:wrap }
-  .toolbar input[type="search"]{ flex:1; min-width:180px }
-  .list{ list-style:none; margin:0; padding:0; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,.03) }
-  .list li{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.03); transition:background .14s }
-  .list li:hover{ background:rgba(255,255,255,.02) }
-  .left{ display:flex; align-items:center; gap:10px }
-  .emoji{ font-size:20px; }
-  .name{ font-weight:700; letter-spacing:.2px }
-
-  .modal{ display:none; position:fixed; inset:0; z-index:999; background:rgba(1,8,16,.6); backdrop-filter: blur(6px); align-items:center; justify-content:center; padding:20px; }
-  .modal.show{ display:flex; animation:modalFade .28s ease; }
-  @keyframes modalFade{ from{opacity:0} to{opacity:1} }
-  .modal-card{ background:#fff; color:#0b1b26; width:100%; max-width:760px; border-radius:12px; padding:18px; box-shadow:0 18px 50px rgba(2,16,28,.4); transform:translateY(12px); animation:modalUp .28s ease; }
-  @keyframes modalUp{ from{ transform:translateY(16px); opacity:0 } to{ transform:none; opacity:1 } }
-  .modal-header{ display:flex; justify-content:space-between; align-items:center; gap:10px }
-  .close{ cursor:pointer; font-size:22px; color:#334455; background:transparent; border:none }
-
-  .report-grid{ display:grid; grid-template-columns:1fr 360px; gap:14px }
-  @media (max-width:880px){ .report-grid{ grid-template-columns:1fr } }
-  table{ width:100%; border-collapse:collapse; margin-top:6px }
-  table th, table td{ padding:8px 10px; border-bottom:1px solid #eef3f6; text-align:left; font-size:14px }
-  table th{ background:#f5f8fb; color:#102334; font-weight:700 }
-
-  .narrative{ margin-top:8px; padding:10px; background:#f7fafc; border-radius:8px; border:1px solid #e9eef3; color:#102334; line-height:1.45 }
-  .progress-wrap{ margin-top:10px; background:#f0f4f7; border-radius:10px; overflow:hidden; border:1px solid #e6eef5 }
-  .progress{ height:26px; width:0; background:linear-gradient(90deg,#06d6a0,#25d0ff); display:flex; align-items:center; justify-content:center; color:#002733; font-weight:700; transition:width .6s }
-
-  .actions{ display:flex; gap:10px; margin-top:12px; justify-content:flex-end; flex-wrap:wrap }
-  .loading{ opacity:.6; pointer-events:none }
-
-  #toast{ position: fixed; bottom:18px; right:18px; background:#0f2a3b; color:#e6f7ff; padding:10px 12px; border:1px solid rgba(255,255,255,.08); border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,.4); display:none; z-index:1000 }
-</style>
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
 <header>
   <div class="wrap">
     <h1><span style="font-size:18px">📚</span> Suivi des élèves — Français <span class="badge">Nuit</span></h1>
-    <div style="font-size:13px; color:var(--sub)">Interface moderne • Imprimer rapports</div>
+    <div class="muted">Interface moderne • Imprimer rapports</div>
   </div>
 </header>
 
@@ -137,17 +57,17 @@
       <div><label>Orthographe</label><input id="orthographe" type="number" min="0" max="20" value="0"></div>
     </div>
 
-    <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap">
+    <div class="actions-inline">
       <button class="btn" id="btnAdd"><i class="fa-solid fa-user-plus"></i> Ajouter</button>
       <button class="btn btn-ghost" id="btnClear">Effacer</button>
-      <small class="hint">Les données sont synchronisées avec Google Sheets</small>
+      <small class="hint muted">Les données sont synchronisées avec Google Sheets</small>
     </div>
   </section>
 
   <!-- List -->
   <section class="card">
     <h2>Liste des élèves</h2>
-    <div class="toolbar" style="margin-bottom:12px">
+    <div class="toolbar">
       <input id="search" type="search" placeholder="Rechercher nom/prénom...">
       <select id="filterClasse"><option value="__all__">Toutes les classes</option></select>
       <select id="sortBy">
@@ -159,10 +79,13 @@
       <button class="btn btn-ghost" id="btnReset">Réinitialiser</button>
       <button class="btn btn-ghost" id="btnRefresh" title="Actualiser"><i class="fa-solid fa-rotate"></i></button>
 
-      <!-- Import Excel/CSV -->
+      <!-- Import / Export -->
       <input type="file" id="excelInput" accept=".xlsx,.xls,.csv" style="display:none">
       <button class="btn btn-excel" id="btnImport" title="Importer Excel">
         <i class="fa-solid fa-file-excel"></i> Importer
+      </button>
+      <button class="btn btn-ghost" id="btnExport" title="Exporter CSV">
+        <i class="fa-solid fa-file-arrow-down"></i> Exporter
       </button>
     </div>
     <ul id="list" class="list"></ul>
@@ -174,8 +97,8 @@
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-header">
       <div>
-        <div id="modalTitle" style="font-weight:800; font-size:16px">Rapport</div>
-        <div style="font-size:13px; color:#445b6b" id="modalSub">—</div>
+        <div id="modalTitle" class="modal-title">Rapport</div>
+        <div class="modal-sub" id="modalSub">—</div>
       </div>
       <div>
         <button class="btn btn-ghost" id="toggleEditBtn">Mode édition</button>
@@ -183,7 +106,7 @@
       </div>
     </div>
 
-    <div style="margin-top:12px">
+    <div class="modal-body">
       <div class="report-grid">
         <div id="reportLeft">
           <h3>Tableau des compétences</h3>
@@ -192,23 +115,20 @@
             <tbody></tbody>
           </table>
           <div class="narrative" id="pedagoText">Texte pédagogique ...</div>
-          <!-- Ajout: résumé comportement -->
           <div class="narrative" id="behavSummary" style="margin-top:8px; display:none"></div>
         </div>
 
         <div id="reportRight">
           <h3>Graphique</h3>
-          <canvas id="studentChart" style="max-height:220px"></canvas>
-          <div style="margin-top:10px">
-            <div style="display:flex; justify-content:space-between; align-items:center">
-              <div style="font-size:13px; color:#445b6b">Progression globale</div>
-              <div style="font-size:13px; color:#445b6b">Date: <span id="modalDate">—</span></div>
-            </div>
-            <div class="progress-wrap"><div id="modalProgress" class="progress">0%</div></div>
+          <div class="chart-wrap"><canvas id="studentChart"></canvas></div>
+          <div class="meta-row">
+            <div class="muted">Progression globale</div>
+            <div class="muted">Date: <span id="modalDate">—</span></div>
           </div>
-          <div style="margin-top:12px">
-            <div style="font-weight:700; margin-bottom:6px">Notes du professeur</div>
-            <textarea id="modalNotes" style="width:100%; min-height:80px; background:linear-gradient(180deg,#072939,#0a2f43); color:#dff6ff; border-radius:8px; border:1px solid rgba(255,255,255,.06)"></textarea>
+          <div class="progress-wrap"><div id="modalProgress" class="progress">0%</</div></div>
+          <div class="notes-wrap">
+            <div class="notes-title">Notes du professeur</div>
+            <textarea id="modalNotes"></textarea>
           </div>
         </div>
       </div>
@@ -228,30 +148,30 @@
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="behavTitle">
     <div class="modal-header">
       <div>
-        <div id="behavTitle" style="font-weight:800; font-size:16px">Évaluation du comportement</div>
-        <div style="font-size:13px; color:#445b6b" id="behavSub">—</div>
+        <div id="behavTitle" class="modal-title">Évaluation du comportement</div>
+        <div class="modal-sub" id="behavSub">—</div>
       </div>
       <button class="close" id="behavClose" title="Fermer">&times;</button>
     </div>
 
-    <div style="margin-top:10px">
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
-        <div class="card" style="background:#f8fafc; color:#0b1b26">
-          <h3 style="margin:0 0 8px">Infractions</h3>
+    <div class="modal-body">
+      <div class="behav-grid">
+        <div class="card glass light">
+          <h3 class="card-title">Infractions</h3>
           <label><input type="checkbox" id="bh_bavard"> Bavardage répété (-2)</label>
           <label><input type="checkbox" id="bh_irrespect"> Manque de respect (-4)</label>
           <label><input type="checkbox" id="bh_devoir"> Devoir non remis (-2)</label>
-          <label>Retards (nb) <input type="number" id="bh_retard" min="0" value="0" style="width:80px"></label>
-          <label>Oubli de matériel (nb) <input type="number" id="bh_oubli" min="0" value="0" style="width:80px"></label>
+          <label>Retards (nb) <input type="number" id="bh_retard" min="0" value="0" class="mini"></label>
+          <label>Oubli de matériel (nb) <input type="number" id="bh_oubli" min="0" value="0" class="mini"></label>
         </div>
-        <div class="card" style="background:#f8fafc; color:#0b1b26">
-          <h3 style="margin:0 0 8px">Points positifs</h3>
+        <div class="card glass light">
+          <h3 class="card-title">Points positifs</h3>
           <label><input type="checkbox" id="bh_participation"> Participation active (+2)</label>
           <label><input type="checkbox" id="bh_aide"> Aide aux camarades (+1)</label>
           <label>Commentaire
-            <textarea id="bh_comment" style="width:100%; min-height:60px; background:#eef6ff"></textarea>
+            <textarea id="bh_comment" class="light"></textarea>
           </label>
-          <div style="margin-top:6px"><b>Score comportement (sur 20):</b> <span id="bh_score">20</span></div>
+          <div class="score-line"><b>Score comportement (sur 20):</b> <span id="bh_score">20</span></div>
         </div>
       </div>
 
@@ -266,531 +186,13 @@
 <!-- Toast -->
 <div id="toast"></div>
 
-<!-- Icons -->
+<!-- Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
 
-<script>
-/* ================== Config ================== */
-const API_BASE = 'https://script.google.com/macros/s/AKfycbz98bVRrHP7WyYEXhywcYAxaZ8lXnQSYIWjbOOmLzzqP9LZUpw4RJfxr2yhWnNojKYNbQ/exec';
-const MAX_SCORE = 20;
-
-/* ================== State & utils ================== */
-let students = [];
-let activeIdx = null;
-let chartInstance = null;
-const skillsLabels = ["Écriture","Lecture","Vocabulaire","Grammaire","Conjugaison","Orthographe"];
-
-const qs = (id)=> document.getElementById(id);
-const setLoading = (el,on)=>{ if(!el) return; el.classList.toggle('loading',!!on); el.disabled=!!on; };
-const clamp = v => Math.max(0, Math.min(MAX_SCORE, Number(v)||0));
-function toast(msg){ const t=qs('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none', 2600); }
-
-/* debounce للبحث */
-function debounce(fn, wait=160){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), wait); }; }
-const renderListDebounced = debounce(renderList, 160);
-
-/* ================== API via GET ================== */
-async function getJSON(params){
-  const url = API_BASE + '?' + new URLSearchParams(params).toString();
-  let res;
-  try { res = await fetch(url, { method: 'GET', cache: 'no-store' }); }
-  catch (e) { alert('Erreur réseau.'); throw e; }
-  if (!res.ok) {
-    const txt = await res.text().catch(()=> '');
-    throw new Error('HTTP '+res.status+' '+txt.slice(0,120));
-  }
-  const ct = res.headers.get('content-type')||'';
-  if (!ct.includes('application/json')) {
-    const text = await res.text();
-    console.error('Non-JSON response:', text.slice(0,200));
-    throw new Error("Réponse non JSON (vérifiez les permissions Web App).");
-  }
-  return res.json();
-}
-const backend = {
-  getAll(){           return getJSON({ action:'get' }); },
-  create(s){          return getJSON({ action:'create', ...s }); },
-  update(index, s){   return getJSON({ action:'update', index, ...s }); },
-  remove(index){      return getJSON({ action:'delete', index }); }
-};
-
-/* ================== Form ================== */
-function readFormValues(){
-  return {
-    nom: qs('nom').value.trim(),
-    prenom: qs('prenom').value.trim(),
-    sexe: qs('sexe').value,
-    classe: qs('classe').value.trim(),
-    notes: qs('notes').value.trim(),
-    ecriture: clamp(qs('ecriture').value),
-    lecture: clamp(qs('lecture').value),
-    vocabulaire: clamp(qs('vocabulaire').value),
-    grammaire: clamp(qs('grammaire').value),
-    conjugaison: clamp(qs('conjugaison').value),
-    orthographe: clamp(qs('orthographe').value),
-    // Champs comportement optionnels (compatibles si غير موجودة في الـSheet)
-    comportement: Number(0),
-    comportement_details: '',
-    comportement_commentaire: '',
-    date: new Date().toLocaleDateString()
-  };
-}
-async function addStudent(){
-  const btn = qs('btnAdd'); setLoading(btn,true);
-  try{
-    const s = readFormValues();
-    if(!s.nom || !s.prenom){ alert('Nom et prénom requis'); return; }
-    const r = await backend.create(s);
-    if(r && r.ok===false){ throw new Error(r.error||'create failed'); }
-    await loadStudents();
-    clearForm();
-    toast('Élève ajouté.');
-  } catch(e){ alert(e.message || "Erreur lors de l'ajout."); }
-  finally{ setLoading(btn,false); }
-}
-function clearForm(){
-  ['nom','prenom','classe','notes','ecriture','lecture','vocabulaire','grammaire','conjugaison','orthographe'].forEach(id=>qs(id).value='');
-  qs('sexe').value='H';
-}
-
-/* ================== List / Filters / Sort ================== */
-function uniqueClasses(){ const set = new Set(students.map(s=>s.classe).filter(Boolean)); return ['__all__', ...[...set].sort()]; }
-let _classesSignature = '';
-function populateFilter(){
-  const classes = uniqueClasses();
-  const sig = classes.join('|');
-  if (sig === _classesSignature) return;
-  _classesSignature = sig;
-  const sel = qs('filterClasse'); const prev = sel.value;
-  sel.innerHTML = classes.map(c=>`<option value="${c}">${c==='__all__'?'Toutes les classes':c}</option>`).join('');
-  sel.value = [...sel.options].some(o=>o.value===prev) ? prev : '__all__';
-}
-function resetFilters(){ qs('search').value=''; qs('filterClasse').value='__all__'; qs('sortBy').value='name-asc'; renderList(); }
-function renderList(){
-  populateFilter();
-  const q = (qs('search').value||'').toLowerCase().trim();
-  const classe = qs('filterClasse').value;
-  const sortBy = qs('sortBy').value;
-  let list = [...students];
-
-  list = list.filter(s=>{
-    const name = (s.nom+' '+s.prenom).toLowerCase();
-    const okQ = !q || name.includes(q);
-    const okC = classe==='__all__' || !classe || s.classe===classe;
-    return okQ && okC;
-  });
-
-  if(sortBy==='name-asc') list.sort((a,b)=> (a.nom+' '+a.prenom).localeCompare(b.nom+' '+b.prenom));
-  if(sortBy==='name-desc') list.sort((a,b)=> (b.nom+' '+b.prenom).localeCompare(a.nom+' '+a.prenom));
-  if(sortBy==='classe-asc') list.sort((a,b)=> (a.classe||'').localeCompare(b.classe||''));
-  if(sortBy==='classe-desc') list.sort((a,b)=> (b.classe||'').localeCompare(a.classe||''));
-
-  const ul = qs('list'); ul.innerHTML='';
-  list.forEach(s=>{
-    const idx = students.indexOf(s);
-    const li = document.createElement('li');
-    li.innerHTML = `
-      <div class="left">
-        <div class="emoji">${s.sexe==='H'?'👨':'👩'}</div>
-        <div>
-          <div class="name">${s.nom} ${s.prenom}</div>
-          <div style="font-size:12px; color:var(--sub)">${s.classe||'—'}</div>
-        </div>
-      </div>
-      <div style="display:flex; gap:8px; flex-wrap:wrap">
-        <button class="btn btn-ghost" title="Voir le rapport" onclick="openModal(${idx}, false)"><i class="fa-solid fa-file-lines"></i> Rapport</button>
-        <button class="btn btn-behav" title="Évaluer le comportement" onclick="openBehav(${idx})"><i class="fa-solid fa-face-smile"></i> Comportement</button>
-        <button class="btn btn-edit" title="Modifier" onclick="openModal(${idx}, true)"><i class="fa-solid fa-pen-to-square"></i> Modifier</button>
-        <button class="btn btn-del" title="Supprimer" onclick="deleteStudent(${idx})"><i class="fa-solid fa-trash"></i></button>
-      </div>`;
-    ul.appendChild(li);
-  });
-}
-
-/* ================== Delete ================== */
-async function deleteStudent(arrIndex){
-  const s = students[arrIndex]; if(!s) return;
-  if(!confirm('Supprimer cet élève ?')) return;
-  try{
-    const r = await backend.remove(s.index);
-    if(r && r.ok===false){ throw new Error(r.error||'delete failed'); }
-    await loadStudents();
-    closeModal(); closeBehav();
-    toast('Élève supprimé.');
-  } catch(e){ alert('Suppression impossible.'); }
-}
-
-/* ================== Modal / Report ================== */
-const modal = qs('modal');
-function openModal(arrIndex, editMode){
-  activeIdx = arrIndex;
-  const s = students[arrIndex]; if(!s) return;
-
-  qs('modalTitle').textContent = `${s.nom} ${s.prenom}`;
-  qs('modalSub').textContent = s.classe ? `Classe: ${s.classe}` : '—';
-  qs('modalDate').textContent = s.date || '—';
-
-  const tbody = document.querySelector('#skillsTable tbody'); tbody.innerHTML = '';
-  const arr = [s.ecriture,s.lecture,s.vocabulaire,s.grammaire,s.conjugaison,s.orthographe];
-  skillsLabels.forEach((lab,i)=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${lab}</td><td>${arr[i] ?? 0}</td>`; tbody.appendChild(tr); });
-
-  qs('pedagoText').innerHTML = generatePedagoText(s);
-
-  // résumé comportement (si موجود)
-  const bhBox = qs('behavSummary');
-  if (typeof s.comportement !== 'undefined' && s.comportement !== '' ){
-    bhBox.style.display='block';
-    const details = s.comportement_details ? ` — <i>${s.comportement_details}</i>` : '';
-    bhBox.innerHTML = `<b>Comportement:</b> ${s.comportement}/20${details}`;
-  } else { bhBox.style.display='none'; bhBox.innerHTML = ''; }
-
-  qs('modalNotes').value = s.notes || '';
-  renderStudentChart(arr);
-
-  const pct = Math.round((arr.reduce((a,b)=>a+(Number(b)||0),0) / (arr.length*MAX_SCORE)) * 100);
-  const prog = qs('modalProgress'); prog.style.width = pct+'%'; prog.textContent = pct+'%';
-
-  toggleEditMode(editMode);
-  modal.classList.add('show'); modal.setAttribute('aria-hidden','false');
-}
-function closeModal(){
-  modal.classList.remove('show'); modal.setAttribute('aria-hidden','true');
-  activeIdx = null;
-  if(chartInstance){ chartInstance.destroy(); chartInstance = null; }
-}
-qs('btnCloseModal').addEventListener('click', closeModal);
-qs('btnCloseModal2').addEventListener('click', closeModal);
-
-function renderStudentChart(data){
-  const ctx = qs('studentChart'); if(chartInstance) chartInstance.destroy();
-  chartInstance = new Chart(ctx, {
-    type:'bar',
-    data:{ labels: skillsLabels, datasets:[{ label:'Score /20', data: data.map(v=>Number(v)||0), backgroundColor:'rgba(0,180,216,0.75)', borderColor:'#00B4D8', borderWidth:1, borderRadius:8 }] },
-    options:{ animation:{ duration:700, easing:'easeOutQuart' }, scales:{ y:{ beginAtZero:true, max:MAX_SCORE, ticks:{ stepSize:2 } } }, plugins:{ legend:{ display:false } } }
-  });
-}
-
-/* ================== Pedagogical (français, par compétence) ================== */
-function describeSkillFR(name, v){
-  if (v < 10) return `<b>${name}</b> (${v}/20) : acquis fragiles ; renforcer les bases par des exercices guidés.`;
-  if (v < 15) return `<b>${name}</b> (${v}/20) : niveau satisfaisant ; consolider par une pratique régulière.`;
-  return `<b>${name}</b> (${v}/20) : très bon niveau ; proposer des activités d’enrichissement.`;
-}
-function generatePedagoText(s){
-  const map = {
-    "Écriture": s.ecriture, "Lecture": s.lecture, "Vocabulaire": s.vocabulaire,
-    "Grammaire": s.grammaire, "Conjugaison": s.conjugaison, "Orthographe": s.orthographe
-  };
-  const scores = Object.values(map).map(v=>Number(v)||0);
-  const mean = Math.round((scores.reduce((a,b)=>a+b,0)/scores.length)*100)/100;
-  const best = Math.max(...scores), worst = Math.min(...scores);
-  const skills = Object.keys(map);
-  const bestIdx = scores.indexOf(best), worstIdx = scores.indexOf(worst);
-
-  let niveau;
-  if(mean >= 15) niveau='très bon ensemble de compétences';
-  else if(mean >= 10) niveau='compétences en progression';
-  else niveau='besoin d’un accompagnement renforcé';
-
-  const lignes = skills.map((k,i)=> describeSkillFR(k, scores[i]));
-  return `<strong>Analyse pédagogique :</strong> L’élève présente ${niveau} (moyenne ${mean}/20). 
-          Point fort : <strong>${skills[bestIdx]}</strong> (${best}/20) ; axe prioritaire : <strong>${skills[worstIdx]}</strong> (${worst}/20).
-          <br><br><strong>Appréciation par compétence :</strong><br>${lignes.join('<br>')}`;
-}
-
-/* ================== Edit mode ================== */
-function toggleEditMode(enable){
-  const notes = qs('modalNotes');
-  const saveBtn = qs('saveEditBtn');
-  const toggleBtn = qs('toggleEditBtn');
-
-  if(enable){
-    const tbody = document.querySelector('#skillsTable tbody');
-    const s = students[activeIdx]; tbody.innerHTML='';
-    const keys = ['ecriture','lecture','vocabulaire','grammaire','conjugaison','orthographe'];
-    keys.forEach((k,i)=>{
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${skillsLabels[i]}</td><td><input type="number" min="0" max="${MAX_SCORE}" id="edit_${k}" value="${s[k] ?? 0}" style="width:100%; background:linear-gradient(180deg,#072939,#0a2f43); color:#dff6ff; border-radius:6px; border:1px solid rgba(255,255,255,.06); padding:6px"></td>`;
-      tbody.appendChild(tr);
-    });
-    notes.style.display='block';
-    saveBtn.style.display='inline-flex';
-    toggleBtn.textContent='Annuler édition';
-    toggleBtn.onclick = ()=>toggleEditMode(false);
-  } else {
-    const s = students[activeIdx]; if(!s) return;
-    const tbody = document.querySelector('#skillsTable tbody'); tbody.innerHTML='';
-    const arr = [s.ecriture,s.lecture,s.vocabulaire,s.grammaire,s.conjugaison,s.orthographe];
-    arr.forEach((val,i)=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${skillsLabels[i]}</td><td>${val ?? 0}</td>`; tbody.appendChild(tr); });
-    qs('pedagoText').innerHTML = generatePedagoText(s);
-    renderStudentChart(arr);
-    qs('modalNotes').value = s.notes || '';
-    saveBtn.style.display = 'none';
-    toggleBtn.textContent='Mode édition';
-    toggleBtn.onclick = ()=>toggleEditMode(true);
-  }
-}
-async function saveEdit(){
-  if(activeIdx === null) return;
-  const s = students[activeIdx];
-  ['ecriture','lecture','vocabulaire','grammaire','conjugaison','orthographe'].forEach(k=>{
-    const el = qs('edit_'+k); if(el) s[k] = clamp(el.value);
-  });
-  s.notes = qs('modalNotes').value || '';
-  s.date = new Date().toLocaleDateString();
-  try{
-    const r = await backend.update(s.index, s);
-    if(r && r.ok===false){ throw new Error(r.error||'update failed'); }
-    await loadStudents();
-    toggleEditMode(false);
-    renderList();
-    qs('modalDate').textContent = s.date;
-    toast('Modifications enregistrées.');
-  }catch(err){ alert('Échec de la sauvegarde.'); }
-}
-
-/* ================== Print / PDF ================== */
-function printReport(){
-  if(!chartInstance) { alert("Le graphique n'est pas prêt."); return; }
-  const s = students[activeIdx];
-  const tableHtml = document.querySelector('#skillsTable').outerHTML;
-  const pedago = qs('pedagoText').innerHTML;
-  const notes = qs('modalNotes').value || '';
-  const date = s.date || new Date().toLocaleDateString();
-  const pct = qs('modalProgress').textContent || '0%';
-  const chartImg = chartInstance.toBase64Image();
-
-  const behavHtml = (typeof s.comportement!=='undefined' && s.comportement!=='')
-    ? `<div class="narrative"><b>Comportement:</b> ${s.comportement}/20 ${s.comportement_details?('— <i>'+s.comportement_details+'</i>'):''}</div>`
-    : '';
-
-  const printable = `
-    <html>
-    <head>
-      <meta charset="utf-8"/>
-      <title>Rapport - ${s.nom} ${s.prenom}</title>
-      <style>
-        body{ font-family: Arial, Helvetica, sans-serif; color:#111; margin:20px }
-        h2{ margin-bottom:4px }
-        .meta{ color:#333; margin-bottom:8px }
-        table{ border-collapse:collapse; width:100%; margin-top:10px }
-        table th, table td{ border:1px solid #ddd; padding:8px; text-align:left }
-        table th{ background:#f2f6fa; font-weight:700 }
-        .narrative{ background:#f7fafc; padding:10px; border-radius:6px; border:1px solid #e8eef3; margin-top:10px }
-        .progress{ height:20px; width:${pct}; background:linear-gradient(90deg,#06d6a0,#25d0ff); color:#012; text-align:center; font-weight:700; border-radius:6px }
-        .notes{ margin-top:10px; border:1px dashed #ddd; padding:8px; background:#fff }
-        .chart{ margin-top:10px; text-align:center }
-      </style>
-    </head>
-    <body>
-      <h2>Rapport pédagogique — ${s.nom} ${s.prenom}</h2>
-      <div class="meta"><b>Classe:</b> ${s.classe || '—'} &nbsp; | &nbsp; <b>Date:</b> ${date} &nbsp; | &nbsp; <b>Niveau global:</b> ${pct}</div>
-      ${tableHtml}
-      <div class="chart"><img src="${chartImg}" style="max-width:100%; height:auto; border:1px solid #eee; border-radius:6px"></div>
-      <div class="narrative">${pedago}</div>
-      ${behavHtml}
-      <div style="margin-top:10px"><b>Notes du professeur</b><div class="notes">${notes}</div></div>
-      <div style="margin-top:18px; font-size:12px; color:#666">Généré depuis l'application Suivi des élèves.</div>
-    </body>
-    </html>
-  `;
-  const win = window.open('','_blank','noopener,noreferrer');
-  win.document.open(); win.document.write(printable); win.document.close();
-  win.onload = ()=>{ win.focus(); setTimeout(()=>{ win.print(); }, 350); };
-}
-// زر PDF (اختر Save as PDF في نافذة الطباعة)
-function downloadPDF(){ printReport(); }
-
-/* ================== Comportement ================== */
-const bhModal = qs('behavModal');
-function behavComputeScore(){
-  let base = 20;
-  // pénalités
-  if (qs('bh_bavard').checked) base -= 2;
-  if (qs('bh_irrespect').checked) base -= 4;
-  if (qs('bh_devoir').checked) base -= 2;
-  const retards = Math.max(0, Number(qs('bh_retard').value)||0);
-  const oublis = Math.max(0, Number(qs('bh_oubli').value)||0);
-  base -= retards * 1;
-  base -= oublis * 1;
-  // bonus
-  if (qs('bh_participation').checked) base += 2;
-  if (qs('bh_aide').checked) base += 1;
-  base = Math.max(0, Math.min(20, base));
-  qs('bh_score').textContent = base;
-  return base;
-}
-['bh_bavard','bh_irrespect','bh_devoir','bh_participation','bh_aide','bh_retard','bh_oubli'].forEach(id=>{
-  document.addEventListener('input', (e)=>{ if(e.target && e.target.id===id) behavComputeScore(); });
-});
-function openBehav(arrIndex){
-  activeIdx = arrIndex;
-  const s = students[arrIndex]; if(!s) return;
-  qs('behavTitle').textContent = `Évaluation — ${s.nom} ${s.prenom}`;
-  qs('behavSub').textContent = s.classe ? `Classe: ${s.classe}` : '—';
-  // reset fields
-  ['bh_bavard','bh_irrespect','bh_devoir','bh_participation','bh_aide'].forEach(id=> qs(id).checked=false);
-  qs('bh_retard').value=0; qs('bh_oubli').value=0; qs('bh_comment').value = s.comportement_commentaire || '';
-  // if existing details, try to reflect (basic)
-  behavComputeScore();
-  bhModal.classList.add('show'); bhModal.setAttribute('aria-hidden','false');
-}
-function closeBehav(){ bhModal.classList.remove('show'); bhModal.setAttribute('aria-hidden','true'); }
-qs('bh_cancel').addEventListener('click', closeBehav);
-qs('behavClose').addEventListener('click', closeBehav);
-
-async function saveBehav(){
-  if(activeIdx===null) return;
-  const s = students[activeIdx];
-  const retards = Math.max(0, Number(qs('bh_retard').value)||0);
-  const oublis = Math.max(0, Number(qs('bh_oubli').value)||0);
-
-  const detailsArr = [];
-  if (qs('bh_bavard').checked) detailsArr.push('Bavardage');
-  if (qs('bh_irrespect').checked) detailsArr.push('Manque de respect');
-  if (qs('bh_devoir').checked) detailsArr.push('Devoir non remis');
-  if (retards>0) detailsArr.push(`Retards x${retards}`);
-  if (oublis>0) detailsArr.push(`Oubli matériel x${oublis}`);
-  if (qs('bh_participation').checked) detailsArr.push('Participation active (+)');
-  if (qs('bh_aide').checked) detailsArr.push('Aide aux camarades (+)');
-
-  s.comportement = behavComputeScore();
-  s.comportement_details = detailsArr.join(', ');
-  s.comportement_commentaire = (qs('bh_comment').value||'').trim();
-  s.date = new Date().toLocaleDateString();
-
-  try{
-    const r = await backend.update(s.index, s);
-    if(r && r.ok===false){ throw new Error(r.error||'update failed'); }
-    await loadStudents();
-    closeBehav();
-    toast('Comportement enregistré.');
-  }catch(e){ alert('Échec de la sauvegarde du comportement.'); }
-}
-qs('bh_save').addEventListener('click', saveBehav);
-
-/* ================== Load & Events ================== */
-async function loadStudents(){
-  const btn = qs('btnRefresh'); setLoading(btn, true);
-  try{
-    const data = await backend.getAll();
-    students = Array.isArray(data) ? data.map((r,i)=>({
-      index: r.index ?? i,
-      nom: r.nom || r.Nom || '',
-      prenom: r.prenom || r.Prenom || r['Prénom'] || '',
-      sexe: r.sexe || r.Sexe || 'H',
-      classe: r.classe || r.Classe || '',
-      notes: r.notes || r.Notes || '',
-      ecriture: Number(r.ecriture ?? r.Ecriture ?? 0),
-      lecture: Number(r.lecture ?? r.Lecture ?? 0),
-      vocabulaire: Number(r.vocabulaire ?? r.Vocabulaire ?? 0),
-      grammaire: Number(r.grammaire ?? r.Grammaire ?? 0),
-      conjugaison: Number(r.conjugaison ?? r.Conjugaison ?? 0),
-      orthographe: Number(r.orthographe ?? r.Orthographe ?? 0),
-      // champs comportement si موجودة بالورقة، وإلا افتراضات
-      comportement: (r.comportement ?? r.Comportement ?? ''),
-      comportement_details: (r.comportement_details ?? r['Comportement details'] ?? ''),
-      comportement_commentaire: (r.comportement_commentaire ?? r['Comportement commentaire'] ?? ''),
-      date: r.date || r.Date || new Date().toLocaleDateString()
-    })) : [];
-    renderList();
-  }catch(err){
-    alert("Impossible de charger les données. Vérifiez رابط الويب وصلاحيات الوصول.");
-  }finally{
-    setLoading(btn, false);
-  }
-}
-
-/* ================== Import Excel/CSV ================== */
-const headerMap = {
-  nom:['nom','Nom','NOM'],
-  prenom:['prenom','prénom','Prenom','Prénom','PRENOM'],
-  sexe:['sexe','Sexe','SEXE','gender','Genre'],
-  classe:['classe','Classe','CLASS'],
-  notes:['notes','Notes','Remarques','Commentaire'],
-  ecriture:['ecriture','Écriture','Ecriture','ECRITURE'],
-  lecture:['lecture','Lecture','LECTURE'],
-  vocabulaire:['vocabulaire','Vocabulaire','VOCABULAIRE'],
-  grammaire:['grammaire','Grammaire','GRAMMAIRE'],
-  conjugaison:['conjugaison','Conjugaison','CONJUGAISON'],
-  orthographe:['orthographe','Orthographe','ORTHOGRAPHE'],
-  comportement:['comportement','Comportement'],
-  comportement_details:['comportement_details','Comportement details'],
-  comportement_commentaire:['comportement_commentaire','Comportement commentaire'],
-  date:['date','Date']
-};
-function normalizeRow(row){
-  const obj = {};
-  for(const key in headerMap){
-    const aliases = headerMap[key];
-    let foundVal = '';
-    for(const alias of aliases){
-      if(row.hasOwnProperty(alias)){ foundVal = row[alias]; break; }
-    }
-    obj[key] = foundVal ?? '';
-  }
-  ['ecriture','lecture','vocabulaire','grammaire','conjugaison','orthographe','comportement'].forEach(k=>{
-    obj[k] = (k==='comportement') ? Math.max(0, Math.min(20, Number(obj[k])||0)) : clamp(obj[k]);
-  });
-  obj.sexe = (String(obj.sexe||'H').toUpperCase().startsWith('F')) ? 'F' : 'H';
-  obj.date = obj.date || new Date().toLocaleDateString();
-  return obj;
-}
-async function importRows(rows){
-  if(!rows.length){ toast('Aucune donnée trouvée.'); return; }
-  if(!confirm(`Importer ${rows.length} enregistrements ?`)) return;
-  for (let i=0;i<rows.length;i++){
-    const r = normalizeRow(rows[i]);
-    try{ await backend.create(r); } catch(e){ console.warn('create failed row', i, e); }
-  }
-  await loadStudents();
-  toast('Import terminé.');
-}
-function handleExcelFile(file){
-  const reader = new FileReader();
-  reader.onload = (e)=>{
-    const data = new Uint8Array(e.target.result);
-    const wb = XLSX.read(data, {type:'array'});
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    const json = XLSX.utils.sheet_to_json(ws, {defval:''});
-    importRows(json);
-  };
-  reader.readAsArrayBuffer(file);
-}
-
-/* ================== Events ================== */
-function attachEvents(){
-  qs('btnAdd').addEventListener('click', addStudent);
-  qs('btnClear').addEventListener('click', clearForm);
-  qs('btnReset').addEventListener('click', resetFilters);
-  qs('btnRefresh').addEventListener('click', loadStudents);
-  qs('search').addEventListener('input', renderListDebounced);
-  qs('filterClasse').addEventListener('change', renderList);
-  qs('sortBy').addEventListener('change', renderList);
-  qs('toggleEditBtn').addEventListener('click', ()=>toggleEditMode(true));
-  qs('btnPrint').addEventListener('click', printReport);
-  qs('btnPDF').addEventListener('click', downloadPDF);
-  qs('btnCloseModal2').addEventListener('click', closeModal);
-  qs('btnCloseModal').addEventListener('click', closeModal);
-
-  // Comportement
-  qs('bh_save').addEventListener('click', saveBehav);
-  qs('bh_cancel').addEventListener('click', closeBehav);
-  qs('behavClose').addEventListener('click', closeBehav);
-
-  // Import Excel/CSV
-  qs('btnImport').addEventListener('click', ()=> qs('excelInput').click());
-  qs('excelInput').addEventListener('change', (e)=>{
-    const file = e.target.files && e.target.files[0];
-    if(!file) return;
-    if(!/\.(xlsx|xls|csv)$/i.test(file.name)){ alert('Veuillez choisir un fichier Excel/CSV.'); return; }
-    handleExcelFile(file);
-    e.target.value='';
-  });
-}
-function init(){ attachEvents(); loadStudents(); }
-init();
-</script>
-
+<!-- App -->
+<script src="app.js"></script>
 </body>
 </html>
+
