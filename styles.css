@@ -209,4 +209,3 @@ textarea.light{ background:#eef6ff; border:1px solid #dde9f7; min-height:64px }
 .actions{ display:flex; gap:10px; margin-top:12px; justify-content:flex-end; flex-wrap:wrap }
 .loading{ opacity:.6; pointer-events:none }
 #toast{ position:fixed; bottom:18px; right:18px; background:rgba(8,18,30,.7); color:#e6f7ff; padding:10px 12px; border:1px solid rgba(185,220,255,.18); border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.4); display:none; z-index:1000 }
-

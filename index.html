@@ -7,6 +7,13 @@
 
   <!-- Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <!-- Chart.js & SheetJS -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <!-- Styles -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -14,7 +21,7 @@
 <header>
   <div class="wrap">
     <h1><span style="font-size:18px">📚</span> Suivi des élèves — Français <span class="badge">Nuit</span></h1>
-    <div class="muted">Interface moderne • Imprimer rapports</div>
+    <div class="subtitle">Interface moderne • Imprimer rapports</div>
   </div>
 </header>
 
@@ -47,7 +54,7 @@
     <label>Notes du professeur</label>
     <textarea id="notes" placeholder="Observations, recommandations..."></textarea>
 
-    <h2 style="margin-top:12px">Compétences (0–20)</h2>
+    <h2 class="mt12">Compétences (0–20)</h2>
     <div class="row-3">
       <div><label>Écriture</label><input id="ecriture" type="number" min="0" max="20" value="0"></div>
       <div><label>Lecture</label><input id="lecture" type="number" min="0" max="20" value="0"></div>
@@ -57,10 +64,10 @@
       <div><label>Orthographe</label><input id="orthographe" type="number" min="0" max="20" value="0"></div>
     </div>
 
-    <div class="actions-inline">
+    <div class="form-actions">
       <button class="btn" id="btnAdd"><i class="fa-solid fa-user-plus"></i> Ajouter</button>
       <button class="btn btn-ghost" id="btnClear">Effacer</button>
-      <small class="hint muted">Les données sont synchronisées avec Google Sheets</small>
+      <small class="hint">Les données sont synchronisées avec Google Sheets</small>
     </div>
   </section>
 
@@ -79,13 +86,10 @@
       <button class="btn btn-ghost" id="btnReset">Réinitialiser</button>
       <button class="btn btn-ghost" id="btnRefresh" title="Actualiser"><i class="fa-solid fa-rotate"></i></button>
 
-      <!-- Import / Export -->
+      <!-- Import Excel/CSV -->
       <input type="file" id="excelInput" accept=".xlsx,.xls,.csv" style="display:none">
       <button class="btn btn-excel" id="btnImport" title="Importer Excel">
         <i class="fa-solid fa-file-excel"></i> Importer
-      </button>
-      <button class="btn btn-ghost" id="btnExport" title="Exporter CSV">
-        <i class="fa-solid fa-file-arrow-down"></i> Exporter
       </button>
     </div>
     <ul id="list" class="list"></ul>
@@ -120,15 +124,16 @@
 
         <div id="reportRight">
           <h3>Graphique</h3>
-          <div class="chart-wrap"><canvas id="studentChart"></canvas></div>
+          <canvas id="studentChart" style="max-height:220px"></canvas>
           <div class="meta-row">
             <div class="muted">Progression globale</div>
             <div class="muted">Date: <span id="modalDate">—</span></div>
           </div>
           <div class="progress-wrap"><div id="modalProgress" class="progress">0%</</div></div>
-          <div class="notes-wrap">
-            <div class="notes-title">Notes du professeur</div>
-            <textarea id="modalNotes"></textarea>
+
+          <div class="mt12">
+            <div class="strong mb6">Notes du professeur</div>
+            <textarea id="modalNotes" class="notes-area"></textarea>
           </div>
         </div>
       </div>
@@ -155,23 +160,23 @@
     </div>
 
     <div class="modal-body">
-      <div class="behav-grid">
-        <div class="card glass light">
-          <h3 class="card-title">Infractions</h3>
+      <div class="grid-2">
+        <div class="card plain">
+          <h3>Infractions</h3>
           <label><input type="checkbox" id="bh_bavard"> Bavardage répété (-2)</label>
           <label><input type="checkbox" id="bh_irrespect"> Manque de respect (-4)</label>
           <label><input type="checkbox" id="bh_devoir"> Devoir non remis (-2)</label>
-          <label>Retards (nb) <input type="number" id="bh_retard" min="0" value="0" class="mini"></label>
-          <label>Oubli de matériel (nb) <input type="number" id="bh_oubli" min="0" value="0" class="mini"></label>
+          <label>Retards (nb) <input type="number" id="bh_retard" min="0" value="0" class="w80"></label>
+          <label>Oubli de matériel (nb) <input type="number" id="bh_oubli" min="0" value="0" class="w80"></label>
         </div>
-        <div class="card glass light">
-          <h3 class="card-title">Points positifs</h3>
+        <div class="card plain">
+          <h3>Points positifs</h3>
           <label><input type="checkbox" id="bh_participation"> Participation active (+2)</label>
           <label><input type="checkbox" id="bh_aide"> Aide aux camarades (+1)</label>
           <label>Commentaire
-            <textarea id="bh_comment" class="light"></textarea>
+            <textarea id="bh_comment" class="area-light"></textarea>
           </label>
-          <div class="score-line"><b>Score comportement (sur 20):</b> <span id="bh_score">20</span></div>
+          <div class="mt6"><b>Score comportement (sur 20):</b> <span id="bh_score">20</span></div>
         </div>
       </div>
 
@@ -185,11 +190,6 @@
 
 <!-- Toast -->
 <div id="toast"></div>
-
-<!-- Libraries -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
 
 <!-- App -->
 <script src="app.js"></script>
