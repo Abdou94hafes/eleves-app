@@ -1151,4 +1151,3 @@ window.deleteStudent = deleteStudent;
 window.saveEdit = saveEdit;
 window.printReport = printReport;
 window.downloadPDF = downloadPDF;
-
